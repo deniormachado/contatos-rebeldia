@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Contatos Rebeldia</title>
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#ffffff; --ink:#1d1d1b; --muted:#6b6a66; --line:#e3e1dc;
+  --accent:#c62828; --accent-ink:#fff; --warn:#a15c00; --warn-bg:#fff3e0; --ok:#2e7d32;
+  --row-hover:#faf6f0; --shadow:0 10px 30px rgba(0,0,0,.12);
+  --s-novo:#eceae5; --s-novo-ink:#55534e; --s-and:#e3f0ff; --s-and-ink:#1a5aa8;
+  --s-sem:#fff3e0; --s-sem-ink:#9a5400; --s-ok:#e6f4ea; --s-ok-ink:#1e6b33;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#151514; --panel:#1f1f1d; --ink:#ecebe7; --muted:#a3a19b; --line:#34332f;
+    --accent:#ef5350; --accent-ink:#fff; --warn:#ffb74d; --warn-bg:#3a2a12; --ok:#81c784;
+    --row-hover:#272623; --shadow:0 10px 30px rgba(0,0,0,.5);
+    --s-novo:#2c2b28; --s-novo-ink:#c8c6c0; --s-and:#16304f; --s-and-ink:#9cc8ff;
+    --s-sem:#3a2a12; --s-sem-ink:#ffc27a; --s-ok:#173a22; --s-ok-ink:#93d6a5; }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+.hidden{display:none!important}
+header{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px}
+header h1 span{color:var(--accent)}
+header .spacer{flex:1}
+header .who{color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:40vw}
+.btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.danger{color:var(--accent);border-color:var(--accent)}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn.link{border:none;background:none;padding:2px 4px;color:var(--muted);font-size:13px;text-decoration:underline}
+main{max-width:1500px;margin:0 auto;padding:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:14px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer;text-align:left}
+.stat b{display:block;font-size:21px;line-height:1.1}
+.stat small{color:var(--muted)}
+.stat.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.stat .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center}
+.tools input[type=search]{flex:1 1 220px;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.tools select{padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);max-width:100%}
+.count{color:var(--muted);font-size:13px;margin:4px 0 8px}
+.tablewrap{overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;max-height:calc(100vh - 300px);min-height:240px}
+table{border-collapse:collapse;width:100%;min-width:1150px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:14px}
+th{position:sticky;top:0;background:var(--panel);font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);cursor:pointer;user-select:none;white-space:nowrap;z-index:1}
+th.sorted::after{content:" ▾"} th.sorted.asc::after{content:" ▴"}
+tbody tr{cursor:pointer} tbody tr:hover{background:var(--row-hover)}
+td.nome{font-weight:600;min-width:180px}
+td.ret{min-width:200px;color:var(--muted)}
+.tag{display:inline-block;font-size:12px;padding:1px 7px;border-radius:99px;border:1px solid var(--line);white-space:nowrap}
+.tag.warn{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.st{display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;white-space:nowrap;border:none;cursor:pointer}
+.st-A{background:var(--s-novo);color:var(--s-novo-ink)}
+.st-E{background:var(--s-and);color:var(--s-and-ink)}
+.st-S{background:var(--s-sem);color:var(--s-sem-ink)}
+.st-C{background:var(--s-ok);color:var(--s-ok-ink)}
+a.tel{color:inherit;text-decoration:none;border-bottom:1px dotted var(--muted);white-space:nowrap}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+/* login */
+.login{max-width:380px;margin:12vh auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px}
+.login h1{margin:0 0 6px;font-size:22px}
+.login p{color:var(--muted);margin:0 0 18px}
+.login input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);margin-bottom:12px}
+.login .btn{width:100%;padding:11px}
+.msg{margin-top:12px;font-size:14px}
+.msg.err{color:var(--accent)} .msg.ok{color:var(--ok)}
+/* dialog */
+dialog{border:none;border-radius:14px;padding:0;width:min(780px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--panel);color:var(--ink);box-shadow:var(--shadow)}
+dialog[open]{display:flex;flex-direction:column}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dhead{display:flex;align-items:center;gap:10px;padding:14px 18px 0;background:var(--panel)}
+.dhead h2{margin:0;font-size:17px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.x{border:none;background:none;font-size:24px;cursor:pointer;color:var(--muted);line-height:1}
+.tabs{display:flex;gap:4px;padding:10px 18px 0;border-bottom:1px solid var(--line)}
+.tab{border:none;background:none;padding:8px 12px;cursor:pointer;color:var(--muted);font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--ink);border-bottom-color:var(--accent)}
+.tab:disabled{opacity:.45;cursor:default}
+.dbody{overflow:auto;flex:1}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;padding:16px 18px}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f.full{grid-column:1/-1}
+.f label,.lbl{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.f input,.f select,.f textarea{padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);width:100%}
+.f textarea{min-height:64px;resize:vertical}
+.f input:focus,.f select:focus,.f textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.check{flex-direction:row;align-items:center;gap:8px}
+.check input{width:auto}
+.check label{text-transform:none;font-size:14px;color:var(--ink);font-weight:400;letter-spacing:0}
+.meta{grid-column:1/-1;color:var(--muted);font-size:12px}
+.sec{grid-column:1/-1;font-size:13px;font-weight:700;margin-top:4px;padding-top:10px;border-top:1px solid var(--line)}
+.sec:first-child{border-top:none;padding-top:0;margin-top:0}
+.novo-reg{grid-column:1/-1;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.novo-reg .f input,.novo-reg .f textarea,.novo-reg .f select{background:var(--panel)}
+.novo-reg .acts{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end}
+.hist{grid-column:1/-1;display:flex;flex-direction:column;gap:8px}
+.reg{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.reg .top{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.reg .top b{color:var(--ink);font-size:14px}
+.reg .top .sp{flex:1}
+.reg p{margin:6px 0 0;white-space:pre-wrap}
+.reg p em{font-style:normal;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-right:6px}
+.reg.antigo{border-style:dashed}
+.dfoot{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--line);background:var(--panel)}
+.dfoot .spacer{flex:1}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;z-index:50;box-shadow:var(--shadow);max-width:calc(100vw - 32px)}
+.users li{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.users ul{list-style:none;margin:0;padding:8px 18px 0}
+.users li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.users form{display:flex;gap:8px;padding:14px 18px;flex-wrap:wrap}
+.users form input{flex:1 1 200px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.users .dica{padding:0 18px 14px;color:var(--muted);font-size:13px;margin:0}
+@media (max-width:640px){
+  header{flex-wrap:wrap}
+  header .who{max-width:60vw}
+  .grid,.novo-reg{grid-template-columns:1fr}
+  main{padding:12px}
+  .tablewrap{max-height:none}
+  .stat b{font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="telaLogin" class="login hidden">
+  <h1>Contatos <span style="color:var(--accent)">Rebeldia</span></h1>
+  <p>Acesso restrito. Digite seu e-mail para receber o link de entrada.</p>
+  <form id="formLogin">
+    <input id="loginEmail" type="email" required placeholder="seu@email.com" autocomplete="email">
+    <button class="btn primary" type="submit">Enviar link de acesso</button>
+  </form>
+  <div id="loginMsg" class="msg"></div>
+</section>
+
+<!-- SEM ACESSO -->
+<section id="telaSemAcesso" class="login hidden">
+  <h1>Sem autorização</h1>
+  <p>O e-mail <b id="semAcessoEmail"></b> não está na lista de pessoas autorizadas. Peça ao responsável pela lista para incluir você.</p>
+  <button class="btn" id="btnSair2">Sair</button>
+</section>
+
+<!-- APP -->
+<div id="telaApp" class="hidden">
+<header>
+  <h1>Contatos <span>Rebeldia</span></h1>
+  <div class="spacer"></div>
+  <span class="who" id="quem"></span>
+  <button class="btn small hidden" id="btnUsuarios">Usuários</button>
+  <button class="btn small" id="btnSair">Sair</button>
+</header>
+<main>
+  <div class="stats" id="stats"></div>
+  <div class="tools">
+    <input type="search" id="busca" placeholder="Buscar nome, telefone, cidade, Instagram, retorno…">
+    <select id="fRegiao"><option value="">Todas as regiões</option></select>
+    <select id="fOrigem"><option value="">Todas as origens</option></select>
+    <select id="fSituacao"><option value="">Situação (Faça Parte)</option></select>
+    <select id="fResp"><option value="">Qualquer responsável</option><option value="__sem">Sem responsável</option></select>
+    <button class="btn" id="btnCsv" title="Baixar a lista filtrada">Baixar CSV</button>
+    <button class="btn primary" id="btnNovo">+ Novo contato</button>
+  </div>
+  <div class="count" id="contagem"></div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr id="cabecalho"></tr></thead>
+      <tbody id="corpo"></tbody>
+    </table>
+  </div>
+</main>
+</div>
+
+<!-- FICHA DO CONTATO -->
+<dialog id="dlg">
+  <div class="dhead"><h2 id="dlgTitulo">Novo contato</h2><button class="x" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <div class="tabs">
+    <button class="tab on" type="button" data-tab="dados">Dados</button>
+    <button class="tab" type="button" data-tab="acomp" id="tabAcomp">Acompanhamento</button>
+  </div>
+  <div class="dbody">
+    <!-- ABA DADOS -->
+    <form class="grid" id="formContato" autocomplete="off" data-painel="dados">
+      <div class="f full"><label for="c_nome">Nome *</label><input id="c_nome" name="nome" required></div>
+      <div class="f"><label for="c_telefone">Telefone</label><input id="c_telefone" name="telefone" inputmode="tel" placeholder="(51) 99999-9999"></div>
+      <div class="f"><label for="c_instagram">Instagram</label><input id="c_instagram" name="instagram" placeholder="@usuario"></div>
+      <div class="f check full"><input type="checkbox" id="c_telefone_conferir" name="telefone_conferir"><label for="c_telefone_conferir">Telefone a conferir</label></div>
+      <div class="f"><label for="c_email">E-mail</label><input id="c_email" name="email" type="email"></div>
+      <div class="f"><label for="c_idade">Idade</label><input id="c_idade" name="idade" type="number" min="0" max="120"></div>
+      <div class="f"><label for="c_regiao">Região</label><input id="c_regiao" name="regiao" list="lRegiao"></div>
+      <div class="f"><label for="c_local">Local (cidade / bairro)</label><input id="c_local" name="local"></div>
+      <div class="f full"><label for="c_estuda_trabalha">Estuda / Trabalha</label><input id="c_estuda_trabalha" name="estuda_trabalha"></div>
+      <div class="f"><label for="c_origem">Origem</label><input id="c_origem" name="origem" list="lOrigem"></div>
+      <div class="f"><label for="c_situacao">Situação (Faça Parte)</label>
+        <select id="c_situacao" name="situacao"><option value="">—</option><option>Simpatizante</option><option>Filiado</option><option>Filiado e contribuinte</option></select></div>
+      <div class="f"><label for="c_data_cadastro">Data do cadastro</label><input id="c_data_cadastro" name="data_cadastro" type="date"></div>
+      <div class="f full"><label for="c_comentario_inscricao">Comentário original na inscrição</label><textarea id="c_comentario_inscricao" name="comentario_inscricao"></textarea></div>
+      <div class="f full"><label for="c_observacoes">Observações gerais</label><textarea id="c_observacoes" name="observacoes"></textarea></div>
+      <div class="meta" id="dlgMeta"></div>
+    </form>
+
+    <!-- ABA ACOMPANHAMENTO -->
+    <div class="grid hidden" data-painel="acomp">
+      <div class="sec">Situação atual</div>
+      <div class="f"><label for="a_responsavel">Responsável pelo contato</label><input id="a_responsavel" list="lResp" placeholder="Quem vai fazer o contato"></div>
+      <div class="f"><label for="a_status">Situação do acompanhamento</label>
+        <select id="a_status"><option>A contatar</option><option>Em andamento</option><option>Sem resposta</option><option>Concluído</option></select></div>
+
+      <div class="sec" id="tituloReg">Registrar contato</div>
+      <form class="novo-reg" id="formReg" autocomplete="off">
+        <div class="f"><label for="r_data">Data</label><input id="r_data" type="date" required></div>
+        <div class="f"><label for="r_responsavel">Quem fez o contato</label><input id="r_responsavel" list="lResp"></div>
+        <div class="f full"><label for="r_retorno">Retorno do contato</label><textarea id="r_retorno" placeholder="Como foi a conversa, o que a pessoa respondeu…"></textarea></div>
+        <div class="f full"><label for="r_caracterizacao">Caracterização</label><input id="r_caracterizacao" list="lCarac" placeholder="Ex.: muito interessada, já milita, só quer acompanhar…"></div>
+        <div class="f full"><label for="r_observacoes">Observações</label><textarea id="r_observacoes" placeholder="Próximos passos, combinados…"></textarea></div>
+        <div class="acts">
+          <button class="btn hidden" type="button" id="btnCancelaReg">Cancelar edição</button>
+          <button class="btn primary" type="submit" id="btnReg">Registrar contato</button>
+        </div>
+      </form>
+
+      <div class="sec">Histórico <span id="qtdHist" style="color:var(--muted);font-weight:400"></span></div>
+      <div class="hist" id="historico"></div>
+    </div>
+  </div>
+  <div class="dfoot">
+    <button class="btn danger hidden" type="button" id="btnExcluir">Excluir contato</button>
+    <div class="spacer"></div>
+    <button class="btn" type="button" data-fechar>Fechar</button>
+    <button class="btn primary" type="button" id="btnSalvar">Salvar</button>
+  </div>
+</dialog>
+
+<!-- CONFIRMAÇÃO -->
+<dialog id="dlgConf" style="width:min(420px,calc(100vw - 24px))">
+  <div class="dhead" style="padding-bottom:4px"><h2 id="confTitulo">Excluir?</h2></div>
+  <p style="padding:0 18px" id="confTexto"></p>
+  <div class="dfoot"><div class="spacer"></div><button class="btn" id="confNao">Cancelar</button><button class="btn primary" id="confSim">Excluir</button></div>
+</dialog>
+
+<!-- USUÁRIOS -->
+<dialog id="dlgUsuarios" class="users">
+  <div class="dhead" style="padding-bottom:6px"><h2>Pessoas com acesso</h2><button class="x" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <ul id="listaUsuarios"></ul>
+  <form id="formUsuario">
+    <input type="email" id="novoEmail" required placeholder="e-mail da pessoa">
+    <input id="novoNome" placeholder="nome usado em “Responsável”">
+    <button class="btn primary" type="submit">Dar acesso</button>
+  </form>
+  <p class="dica">O nome deve ser igual ao usado no campo “Responsável” (ex.: Ícaro). Assim o cartão “Meus contatos” funciona para a pessoa.</p>
+</dialog>
+
+<datalist id="lRegiao"></datalist><datalist id="lOrigem"></datalist><datalist id="lResp"></datalist><datalist id="lCarac"></datalist>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://singuutlpjdpfogdprip.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Qfln9R8Rc5cRXaZcU-RYog_F4LrGzis';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtData = d => d ? d.slice(0,10).split('-').reverse().join('/') : '';
+const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+const hojeISO = () => new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo'}).format(new Date());
+
+const REGIOES = ['Central','Litoral','Metropolitana','Noroeste','Oeste','Planalto Médio','S. Cruz do Sul','Serra','Sul','Vale do Taquari'];
+const ORIGENS = ['Faça Parte','Rebeldia (impulsionamento)','Apresentação Litoral-Serra'];
+const STATUS = ['A contatar','Em andamento','Sem resposta','Concluído'];
+const stClasse = s => 'st st-' + (s||'A')[0];
+const COLUNAS = [
+  ['nome','Nome'],['regiao','Região'],['telefone','Telefone'],['instagram','Instagram'],['idade','Idade'],
+  ['local','Local'],['origem','Origem'],['status_acomp','Acompanhamento'],['responsavel','Responsável'],
+  ['ultimo_contato','Último contato'],['retorno_contato','Último retorno'],['data_inclusao','Inclusão']
+];
+const CAMPOS = ['nome','telefone','instagram','telefone_conferir','email','idade','regiao','local','estuda_trabalha','origem','situacao','data_cadastro','comentario_inscricao','observacoes'];
+
+let contatos = [], acomps = [], usuario = null, meuEmail = '', meuNome = '', ehAdmin = false;
+let editando = null, regEditando = null, ordem = {col:'regiao', asc:true}, filtroRapido = '';
+
+function toast(t){ const d=document.createElement('div'); d.className='toast'; d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),3500); }
+function mostrar(id){ ['telaLogin','telaSemAcesso','telaApp'].forEach(t=>$('#'+t).classList.toggle('hidden', t!==id)); }
+function confirmar(titulo, texto, rotulo='Excluir'){
+  return new Promise(res=>{
+    $('#confTitulo').textContent = titulo; $('#confTexto').textContent = texto; $('#confSim').textContent = rotulo;
+    const d = $('#dlgConf');
+    const fim = v => { d.close(); $('#confSim').onclick = $('#confNao').onclick = null; res(v); };
+    $('#confSim').onclick = ()=>fim(true); $('#confNao').onclick = ()=>fim(false); d.oncancel = ()=>fim(false);
+    d.showModal();
+  });
+}
+
+// ---------- AUTENTICAÇÃO ----------
+$('#formLogin').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = $('#loginEmail').value.trim().toLowerCase();
+  const msg = $('#loginMsg'); msg.className='msg'; msg.textContent='Enviando…';
+  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin + location.pathname } });
+  if (error){ msg.className='msg err'; msg.textContent = 'Não foi possível enviar: ' + error.message; }
+  else { msg.className='msg ok'; msg.textContent = 'Pronto! Abra seu e-mail e clique no link para entrar (veja também a caixa de spam).'; }
+});
+async function sair(){ await sb.auth.signOut(); usuario=null; mostrar('telaLogin'); }
+$('#btnSair').onclick = sair; $('#btnSair2').onclick = sair;
+
+async function iniciar(session){
+  if (!session){ mostrar('telaLogin'); return; }
+  usuario = session.user; meuEmail = (usuario.email||'').toLowerCase();
+  const { data, error } = await sb.from('usuarios_autorizados').select('email,nome,admin').eq('email', meuEmail).maybeSingle();
+  if (error || !data){ $('#semAcessoEmail').textContent = meuEmail; mostrar('telaSemAcesso'); return; }
+  ehAdmin = !!data.admin; meuNome = data.nome || '';
+  $('#quem').textContent = meuNome ? `${meuNome} · ${meuEmail}` : meuEmail;
+  $('#btnUsuarios').classList.toggle('hidden', !ehAdmin);
+  mostrar('telaApp');
+  await carregar();
+}
+let iniciado = false;
+sb.auth.onAuthStateChange((ev, session) => {
+  if (ev === 'SIGNED_OUT'){ mostrar('telaLogin'); return; }
+  if (ev === 'INITIAL_SESSION' || (ev === 'SIGNED_IN' && !iniciado)){ iniciado = !!session; iniciar(session); }
+});
+
+// ---------- DADOS ----------
+async function carregar(){
+  const [c, a] = await Promise.all([
+    sb.from('contatos').select('*').order('nome'),
+    sb.from('acompanhamentos').select('*').order('data',{ascending:false}).order('id',{ascending:false})
+  ]);
+  if (c.error){ toast('Erro ao carregar: ' + c.error.message); return; }
+  contatos = c.data; acomps = a.data || [];
+  montarFiltros(); desenhar();
+}
+async function recarregarContato(id){
+  const [c, a] = await Promise.all([
+    sb.from('contatos').select('*').eq('id', id).single(),
+    sb.from('acompanhamentos').select('*').eq('contato_id', id).order('data',{ascending:false}).order('id',{ascending:false})
+  ]);
+  if (!c.error){ contatos = contatos.map(x=>x.id===id?c.data:x); if (editando && editando.id===id) editando = c.data; }
+  if (!a.error){ acomps = acomps.filter(x=>x.contato_id!==id).concat(a.data); }
+}
+function valoresUnicos(lista, extras=[]){
+  return [...new Set([...extras, ...lista.filter(Boolean).map(s=>String(s).trim())])].sort((a,b)=>a.localeCompare(b,'pt'));
+}
+function preencherSelect(sel, valores){
+  const atual = sel.value, fixos = [...sel.querySelectorAll('option')].filter(o=>o.value===''||o.value.startsWith('__'));
+  sel.innerHTML=''; fixos.forEach(o=>sel.appendChild(o));
+  valores.forEach(v=>{ const o=document.createElement('option'); o.value=o.textContent=v; sel.appendChild(o); });
+  sel.value = atual;
+}
+const dl = (id, vals) => $(id).innerHTML = vals.map(v=>`<option value="${esc(v)}">`).join('');
+function montarFiltros(){
+  const resp = valoresUnicos([...contatos.map(c=>c.responsavel), ...acomps.map(a=>a.responsavel)], meuNome?[meuNome]:[]);
+  preencherSelect($('#fRegiao'), valoresUnicos(contatos.map(c=>c.regiao), REGIOES));
+  preencherSelect($('#fOrigem'), valoresUnicos(contatos.map(c=>c.origem)));
+  preencherSelect($('#fSituacao'), ['Simpatizante','Filiado','Filiado e contribuinte']);
+  preencherSelect($('#fResp'), resp);
+  dl('#lRegiao', valoresUnicos(contatos.map(c=>c.regiao), REGIOES));
+  dl('#lOrigem', valoresUnicos(contatos.map(c=>c.origem), ORIGENS));
+  dl('#lResp', resp);
+  dl('#lCarac', valoresUnicos([...contatos.map(c=>c.caracterizacao), ...acomps.map(a=>a.caracterizacao)]).filter(v=>v.length<=60));
+}
+
+const RAPIDOS = {
+  todos:    {rot:'Total', f:()=>true},
+  meus:     {rot:'Meus contatos', f:c=>meuNome && norm(c.responsavel)===norm(meuNome), so:()=>!!meuNome},
+  ac:       {rot:'A contatar',    f:c=>c.status_acomp==='A contatar', cor:'--s-novo-ink'},
+  and:      {rot:'Em andamento',  f:c=>c.status_acomp==='Em andamento', cor:'--s-and-ink'},
+  semr:     {rot:'Sem resposta',  f:c=>c.status_acomp==='Sem resposta', cor:'--s-sem-ink'},
+  conc:     {rot:'Concluído',     f:c=>c.status_acomp==='Concluído', cor:'--s-ok-ink'},
+  semresp:  {rot:'Sem responsável', f:c=>!c.responsavel},
+  parados:  {rot:'Parados (+7 dias sem registro)', f:c=>c.status_acomp==='Em andamento' && (!c.ultimo_contato || diasDesde(c.ultimo_contato)>7)},
+  conferir: {rot:'Telefone a conferir', f:c=>c.telefone_conferir},
+  menores:  {rot:'Menores de 18', f:c=>c.idade!=null && c.idade<18},
+};
+function diasDesde(d){ return Math.floor((new Date(hojeISO()) - new Date(d))/86400000); }
+
+function filtrados(){
+  const q = norm($('#busca').value);
+  const reg=$('#fRegiao').value, ori=$('#fOrigem').value, sit=$('#fSituacao').value, resp=$('#fResp').value;
+  return contatos.filter(c=>{
+    if (filtroRapido && !RAPIDOS[filtroRapido].f(c)) return false;
+    if (reg && c.regiao!==reg) return false;
+    if (ori && c.origem!==ori) return false;
+    if (sit && c.situacao!==sit) return false;
+    if (resp==='__sem' ? !!c.responsavel : (resp && norm(c.responsavel)!==norm(resp))) return false;
+    if (q){
+      const hist = acomps.filter(a=>a.contato_id===c.id).map(a=>[a.retorno,a.caracterizacao,a.observacoes,a.responsavel].join(' ')).join(' ');
+      const alvo = norm([c.nome,c.telefone,(c.telefone||'').replace(/\D/g,''),c.instagram,c.local,c.email,c.estuda_trabalha,c.observacoes,c.caracterizacao,c.retorno_contato,c.responsavel,hist].join(' '));
+      if (!q.split(/\s+/).every(p=>alvo.includes(p))) return false;
+    }
+    return true;
+  }).sort((a,b)=>{
+    const x=a[ordem.col], y=b[ordem.col];
+    if (x==null && y==null) return a.nome.localeCompare(b.nome,'pt');
+    if (x==null) return 1; if (y==null) return -1;
+    const r = ordem.col==='status_acomp' ? STATUS.indexOf(x)-STATUS.indexOf(y) : typeof x==='number' ? x-y : String(x).localeCompare(String(y),'pt');
+    return (ordem.asc?r:-r) || a.nome.localeCompare(b.nome,'pt');
+  });
+}
+
+function desenhar(){
+  $('#stats').innerHTML = Object.entries(RAPIDOS).filter(([k,v])=>!v.so||v.so()).map(([k,v])=>
+    `<button class="stat ${filtroRapido===k||(!filtroRapido&&k==='todos')?'on':''}" data-k="${k}"><b>${contatos.filter(v.f).length}</b><small>${v.cor?`<span class="dot" style="background:var(${v.cor})"></span>`:''}${v.rot}</small></button>`).join('');
+  $('#stats').querySelectorAll('.stat').forEach(b=>b.onclick=()=>{ filtroRapido = b.dataset.k==='todos'||filtroRapido===b.dataset.k ? '' : b.dataset.k; desenhar(); });
+  $('#cabecalho').innerHTML = COLUNAS.map(([k,r])=>`<th data-k="${k}" class="${ordem.col===k?'sorted'+(ordem.asc?' asc':''):''}">${r}</th>`).join('');
+  $('#cabecalho').querySelectorAll('th').forEach(th=>th.onclick=()=>{ const k=th.dataset.k; ordem = {col:k, asc: ordem.col===k ? !ordem.asc : !['ultimo_contato','data_inclusao'].includes(k)}; desenhar(); });
+  const lista = filtrados();
+  $('#contagem').textContent = `${lista.length} de ${contatos.length} contatos`;
+  if (!lista.length){ $('#corpo').innerHTML = `<tr><td colspan="${COLUNAS.length}" class="empty">Nenhum contato encontrado.</td></tr>`; return; }
+  $('#corpo').innerHTML = lista.map(c=>{
+    const dig=(c.telefone||'').replace(/\D/g,'');
+    const tel = c.telefone ? (c.telefone_conferir ? `${esc(c.telefone)} <span class="tag warn">conferir</span>` :
+      `<a class="tel" href="https://wa.me/55${dig}" target="_blank" rel="noopener" data-stop>${esc(c.telefone)}</a>`) : '';
+    const insta = c.instagram && /^@[\w.]+$/.test(c.instagram) ?
+      `<a class="tel" href="https://instagram.com/${esc(c.instagram.slice(1))}" target="_blank" rel="noopener" data-stop>${esc(c.instagram)}</a>` : esc(c.instagram);
+    const ret = c.retorno_contato || '';
+    return `<tr data-id="${c.id}">
+      <td class="nome">${esc(c.nome)}</td><td>${esc(c.regiao)}</td><td>${tel}</td><td>${insta}</td>
+      <td>${c.idade??''}${c.idade!=null&&c.idade<18?' <span class="tag warn">menor</span>':''}</td>
+      <td>${esc(c.local)}</td><td>${esc(c.origem)}</td>
+      <td><button class="${stClasse(c.status_acomp)}" data-acomp title="Abrir acompanhamento">${esc(c.status_acomp)}</button></td>
+      <td>${esc(c.responsavel)}</td><td>${fmtData(c.ultimo_contato)}</td>
+      <td class="ret">${esc(ret.slice(0,70))}${ret.length>70?'…':''}</td><td>${fmtData(c.data_inclusao)}</td></tr>`;
+  }).join('');
+  $('#corpo').querySelectorAll('[data-stop]').forEach(a=>a.onclick=e=>e.stopPropagation());
+  $('#corpo').querySelectorAll('tr[data-id]').forEach(tr=>{
+    const c = () => contatos.find(x=>x.id==tr.dataset.id);
+    tr.onclick = ()=>abrir(c(), 'dados');
+    tr.querySelector('[data-acomp]').onclick = e=>{ e.stopPropagation(); abrir(c(), 'acomp'); };
+  });
+}
+['#busca','#fRegiao','#fOrigem','#fSituacao','#fResp'].forEach(s=>$(s).addEventListener('input',desenhar));
+
+// ---------- FICHA ----------
+const dlg = $('#dlg'), form = $('#formContato');
+document.querySelectorAll('[data-fechar]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>aba(t.dataset.tab));
+function aba(nome){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on', t.dataset.tab===nome));
+  document.querySelectorAll('[data-painel]').forEach(p=>p.classList.toggle('hidden', p.dataset.painel!==nome));
+}
+function abrir(c, qualAba='dados'){
+  editando = c || null; form.reset(); limparReg();
+  $('#dlgTitulo').textContent = c ? c.nome : 'Novo contato';
+  $('#btnExcluir').classList.toggle('hidden', !c);
+  $('#tabAcomp').disabled = false;
+  CAMPOS.forEach(k=>{ const el=form.elements[k]; if(!el) return; if(el.type==='checkbox') el.checked=!!(c&&c[k]); else el.value = c && c[k]!=null ? c[k] : ''; });
+  $('#a_responsavel').value = c?.responsavel || '';
+  $('#a_status').value = c?.status_acomp || 'A contatar';
+  $('#dlgMeta').textContent = c ? `Incluído em ${fmtData(c.data_inclusao)}${c.criado_por?' por '+c.criado_por:''}` +
+    (c.atualizado_em ? ` · Alterado em ${new Date(c.atualizado_em).toLocaleString('pt-BR')}${c.atualizado_por?' por '+c.atualizado_por:''}` : '') : 'A data de inclusão é registrada automaticamente.';
+  desenharHistorico();
+  aba(qualAba); dlg.showModal();
+  setTimeout(()=> (qualAba==='acomp' ? $('#r_retorno') : form.elements.nome).focus(), 50);
+}
+$('#btnNovo').onclick = ()=>abrir(null);
+
+function formatarTelefone(v){
+  const d=v.replace(/\D/g,'').replace(/^55(?=\d{10,11}$)/,'');
+  if (d.length===11 && d[2]==='9') return {tel:`(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`, ok:true};
+  if (!d) return {tel:null, ok:true};
+  return {tel: d.length>2?`(${d.slice(0,2)}) ${d.slice(2)}`:v.trim(), ok:false};
+}
+$('#c_telefone').addEventListener('blur', e=>{ if(!e.target.value.trim()) return; const r=formatarTelefone(e.target.value); e.target.value=r.tel||''; if(!r.ok) $('#c_telefone_conferir').checked=true; });
+
+let avisoDup = null;
+async function salvarContato(){
+  if (!form.reportValidity()){ aba('dados'); return null; }
+  const reg = {};
+  CAMPOS.forEach(k=>{ const el=form.elements[k];
+    if (el.type==='checkbox') reg[k]=el.checked;
+    else { const v=el.value.trim(); reg[k] = v==='' ? null : (k==='idade'? parseInt(v,10) : v); } });
+  reg.responsavel = $('#a_responsavel').value.trim() || null;
+  reg.status_acomp = $('#a_status').value;
+  if (reg.telefone){ const r=formatarTelefone(reg.telefone); reg.telefone=r.tel; if(!r.ok) reg.telefone_conferir=true; }
+  if (reg.email) reg.email = reg.email.toLowerCase();
+  if (reg.instagram && !reg.instagram.startsWith('@') && /^[\w.]+$/.test(reg.instagram)) reg.instagram='@'+reg.instagram;
+  if (!editando){
+    const dig=(reg.telefone||'').replace(/\D/g,'');
+    const dup = contatos.find(c=> norm(c.nome)===norm(reg.nome) || (dig && (c.telefone||'').replace(/\D/g,'')===dig));
+    if (dup && avisoDup!==dup.id){ avisoDup=dup.id; aba('dados'); toast(`Já existe "${dup.nome}" com esse nome ou telefone. Clique em Salvar de novo para incluir mesmo assim.`); return null; }
+  }
+  avisoDup = null;
+  $('#btnSalvar').disabled = true;
+  const { data, error } = editando
+    ? await sb.from('contatos').update(reg).eq('id', editando.id).select().single()
+    : await sb.from('contatos').insert(reg).select().single();
+  $('#btnSalvar').disabled = false;
+  if (error){ toast('Erro ao salvar: ' + error.message); return null; }
+  const novo = !editando;
+  if (novo) contatos.push(data); else contatos = contatos.map(c=>c.id===data.id?data:c);
+  editando = data; $('#dlgTitulo').textContent = data.nome; $('#btnExcluir').classList.remove('hidden');
+  montarFiltros(); desenhar();
+  return {data, novo};
+}
+$('#btnSalvar').onclick = async ()=>{ const r = await salvarContato(); if (r){ dlg.close(); toast(r.novo ? 'Contato incluído.' : 'Contato atualizado.'); } };
+form.addEventListener('submit', e=>{ e.preventDefault(); $('#btnSalvar').click(); });
+
+$('#btnExcluir').onclick = async ()=>{
+  const n = acomps.filter(a=>a.contato_id===editando.id).length;
+  if (!await confirmar('Excluir contato?', `"${editando.nome}" será removido da lista${n?` junto com ${n} registro(s) de acompanhamento`:''}. Isso não pode ser desfeito.`)) return;
+  const { error } = await sb.from('contatos').delete().eq('id', editando.id);
+  if (error){ toast('Erro ao excluir: ' + error.message); return; }
+  contatos = contatos.filter(c=>c.id!==editando.id); acomps = acomps.filter(a=>a.contato_id!==editando.id);
+  dlg.close(); montarFiltros(); desenhar(); toast('Contato excluído.');
+};
+
+// ---------- ACOMPANHAMENTO ----------
+function limparReg(){
+  regEditando = null; $('#formReg').reset();
+  $('#r_data').value = hojeISO(); $('#r_responsavel').value = meuNome || '';
+  $('#btnReg').textContent = 'Registrar contato'; $('#btnCancelaReg').classList.add('hidden'); $('#tituloReg').textContent = 'Registrar contato';
+}
+$('#btnCancelaReg').onclick = limparReg;
+const podeMexer = a => ehAdmin || a.criado_por === meuEmail;
+
+function desenharHistorico(){
+  const lista = editando ? acomps.filter(a=>a.contato_id===editando.id) : [];
+  $('#qtdHist').textContent = lista.length ? `(${lista.length})` : '';
+  let html = lista.map(a=>`<div class="reg">
+    <div class="top"><b>${fmtData(a.data)}</b>${a.responsavel?`<span>· ${esc(a.responsavel)}</span>`:''}<span class="sp"></span>
+      ${podeMexer(a)?`<button class="btn link" data-ed="${a.id}">Editar</button><button class="btn link" data-rm="${a.id}">Excluir</button>`:''}</div>
+    ${a.retorno?`<p><em>Retorno</em>${esc(a.retorno)}</p>`:''}
+    ${a.caracterizacao?`<p><em>Caracterização</em>${esc(a.caracterizacao)}</p>`:''}
+    ${a.observacoes?`<p><em>Obs.</em>${esc(a.observacoes)}</p>`:''}
+    <div class="top" style="margin-top:6px;font-size:12px">registrado por ${esc(a.criado_por||'—')}</div></div>`).join('');
+  if (!lista.length && editando && (editando.retorno_contato || editando.caracterizacao))
+    html = `<div class="reg antigo"><div class="top"><b>Anotação trazida da planilha</b></div>
+      ${editando.retorno_contato?`<p><em>Retorno</em>${esc(editando.retorno_contato)}</p>`:''}
+      ${editando.caracterizacao?`<p><em>Caracterização</em>${esc(editando.caracterizacao)}</p>`:''}</div>`;
+  if (!html) html = `<div class="empty" style="padding:14px">${editando?'Nenhum contato registrado ainda.':'Salve o contato para começar o acompanhamento.'}</div>`;
+  $('#historico').innerHTML = html;
+  $('#historico').querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>{
+    const a = acomps.find(x=>x.id==b.dataset.ed); regEditando = a;
+    $('#r_data').value=a.data; $('#r_responsavel').value=a.responsavel||''; $('#r_retorno').value=a.retorno||'';
+    $('#r_caracterizacao').value=a.caracterizacao||''; $('#r_observacoes').value=a.observacoes||'';
+    $('#btnReg').textContent='Salvar alteração'; $('#btnCancelaReg').classList.remove('hidden'); $('#tituloReg').textContent = 'Editando registro de ' + fmtData(a.data);
+    $('#tituloReg').scrollIntoView({block:'start', behavior:'smooth'}); $('#r_retorno').focus();
+  });
+  $('#historico').querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{
+    const a = acomps.find(x=>x.id==b.dataset.rm);
+    if (!await confirmar('Excluir registro?', `O registro de ${fmtData(a.data)} será apagado do histórico.`)) return;
+    const { error } = await sb.from('acompanhamentos').delete().eq('id', a.id);
+    if (error){ toast('Erro: ' + error.message); return; }
+    await recarregarContato(editando.id); limparReg(); desenharHistorico(); desenhar(); toast('Registro excluído.');
+  });
+}
+
+$('#formReg').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const v = id => $(id).value.trim() || null;
+  const reg = { data: $('#r_data').value, responsavel: v('#r_responsavel'), retorno: v('#r_retorno'), caracterizacao: v('#r_caracterizacao'), observacoes: v('#r_observacoes') };
+  if (!reg.retorno && !reg.caracterizacao && !reg.observacoes){ toast('Preencha o retorno, a caracterização ou uma observação.'); $('#r_retorno').focus(); return; }
+  // contato novo ou com alterações na ficha: salva antes
+  if (!editando){ const r = await salvarContato(); if (!r) return; }
+  else {
+    const mudouResp = ($('#a_responsavel').value.trim()||null) !== (editando.responsavel||null) || $('#a_status').value !== editando.status_acomp;
+    if (mudouResp){ const r = await salvarContato(); if (!r) return; }
+  }
+  $('#btnReg').disabled = true;
+  const { error } = regEditando
+    ? await sb.from('acompanhamentos').update(reg).eq('id', regEditando.id)
+    : await sb.from('acompanhamentos').insert({...reg, contato_id: editando.id});
+  $('#btnReg').disabled = false;
+  if (error){ toast('Erro ao registrar: ' + error.message); return; }
+  const editou = !!regEditando;
+  await recarregarContato(editando.id);
+  $('#a_responsavel').value = editando.responsavel || ''; $('#a_status').value = editando.status_acomp;
+  limparReg(); montarFiltros(); desenharHistorico(); desenhar();
+  toast(editou ? 'Registro alterado.' : 'Contato registrado no histórico.');
+});
+
+// ---------- CSV ----------
+$('#btnCsv').onclick = ()=>{
+  const cols = ['nome','regiao','telefone','telefone_conferir','instagram','idade','local','estuda_trabalha','email','origem','situacao','data_cadastro','status_acomp','responsavel','ultimo_contato','retorno_contato','caracterizacao','comentario_inscricao','observacoes','data_inclusao'];
+  const titulos = ['Nome','Região','Telefone','Telefone a conferir','Instagram','Idade','Local','Estuda / Trabalha','E-mail','Origem','Situação (Faça Parte)','Data do cadastro','Acompanhamento','Responsável','Último contato','Último retorno','Caracterização','Comentário na inscrição','Observações','Data de inclusão'];
+  const linhas = [titulos.join(';'), ...filtrados().map(c=>cols.map(k=>{ let v=c[k]; if(typeof v==='boolean') v=v?'sim':''; if((k.startsWith('data')||k==='ultimo_contato')&&v) v=fmtData(v); return '"'+String(v??'').replace(/"/g,'""')+'"'; }).join(';'))];
+  const blob = new Blob(['﻿'+linhas.join('\r\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `contatos-rebeldia-${hojeISO()}.csv`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+};
+
+// ---------- USUÁRIOS (admin) ----------
+async function carregarUsuarios(){
+  const { data, error } = await sb.from('usuarios_autorizados').select('*').order('email');
+  if (error){ toast(error.message); return; }
+  $('#listaUsuarios').innerHTML = data.map(u=>`<li><span>${esc(u.email)}${u.nome?' — '+esc(u.nome):''}${u.admin?' <span class="tag">admin</span>':''}</span>
+    ${u.email!==meuEmail?`<button class="btn small danger" data-rm="${esc(u.email)}">Remover</button>`:''}</li>`).join('');
+  $('#listaUsuarios').querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{
+    if (!await confirmar('Remover acesso?', `${b.dataset.rm} não conseguirá mais ver a lista.`, 'Remover')) return;
+    const { error } = await sb.from('usuarios_autorizados').delete().eq('email', b.dataset.rm);
+    if (error) toast(error.message); else { toast('Acesso removido.'); carregarUsuarios(); }
+  });
+}
+$('#btnUsuarios').onclick = ()=>{ carregarUsuarios(); $('#dlgUsuarios').showModal(); };
+$('#formUsuario').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const email=$('#novoEmail').value.trim().toLowerCase(), nome=$('#novoNome').value.trim()||null;
+  const { error } = await sb.from('usuarios_autorizados').insert({email, nome});
+  if (error){ toast(error.code==='23505' ? 'Esse e-mail já tem acesso.' : error.message); return; }
+  $('#formUsuario').reset(); toast('Acesso concedido. A pessoa já pode entrar com esse e-mail.'); carregarUsuarios();
+});
+</script>
+</body>
+</html>
