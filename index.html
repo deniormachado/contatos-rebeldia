@@ -12,13 +12,15 @@
   --row-hover:#faf6f0; --shadow:0 10px 30px rgba(0,0,0,.12);
   --s-novo:#eceae5; --s-novo-ink:#55534e; --s-and:#e3f0ff; --s-and-ink:#1a5aa8;
   --s-sem:#fff3e0; --s-sem-ink:#9a5400; --s-ok:#e6f4ea; --s-ok-ink:#1e6b33;
+  --valor:#c45a00;
 }
 @media (prefers-color-scheme: dark){
   :root{ --bg:#151514; --panel:#1f1f1d; --ink:#ecebe7; --muted:#a3a19b; --line:#34332f;
     --accent:#ef5350; --accent-ink:#fff; --warn:#ffb74d; --warn-bg:#3a2a12; --ok:#81c784;
     --row-hover:#272623; --shadow:0 10px 30px rgba(0,0,0,.5);
     --s-novo:#2c2b28; --s-novo-ink:#c8c6c0; --s-and:#16304f; --s-and-ink:#9cc8ff;
-    --s-sem:#3a2a12; --s-sem-ink:#ffc27a; --s-ok:#173a22; --s-ok-ink:#93d6a5; }
+    --s-sem:#3a2a12; --s-sem-ink:#ffc27a; --s-ok:#173a22; --s-ok-ink:#93d6a5;
+    --valor:#ffa24d; }
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -125,7 +127,15 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   main{padding:12px}
   .tablewrap{max-height:none}
   .stat b{font-size:18px}
+  /* celular: só Nome, Região e Cidade na lista */
+  table{min-width:0}
+  th:not(.m),td:not(.m){display:none}
 }
+/* ficha em modo consulta (celular): conteúdo dos campos em laranja */
+.links{display:none;flex-direction:row;flex-wrap:wrap;gap:8px}
+#dlg.consulta .links{display:flex}
+#dlg.consulta .f input:disabled,#dlg.consulta .f select:disabled,#dlg.consulta .f textarea:disabled{opacity:1;color:var(--valor);-webkit-text-fill-color:var(--valor);font-weight:600;background:transparent;border-color:transparent;padding-left:0;padding-right:0;resize:none;appearance:none;-webkit-appearance:none}
+#dlg.consulta .f.check input:disabled{appearance:auto;-webkit-appearance:auto}
 </style>
 </head>
 <body>
@@ -188,6 +198,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   <div class="dbody">
     <!-- ABA DADOS -->
     <form class="grid" id="formContato" autocomplete="off" data-painel="dados">
+      <div class="f full links" id="c_links"></div>
       <div class="f full"><label for="c_nome">Nome *</label><input id="c_nome" name="nome" required></div>
       <div class="f"><label for="c_telefone">Telefone</label><input id="c_telefone" name="telefone" inputmode="tel" placeholder="(51) 99999-9999"></div>
       <div class="f"><label for="c_instagram">Instagram</label><input id="c_instagram" name="instagram" placeholder="@usuario"></div>
@@ -234,6 +245,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <button class="btn danger hidden" type="button" id="btnExcluir">Excluir contato</button>
     <div class="spacer"></div>
     <button class="btn" type="button" data-fechar>Fechar</button>
+    <button class="btn primary hidden" type="button" id="btnAlterar">Alterar</button>
     <button class="btn primary" type="button" id="btnSalvar">Salvar</button>
   </div>
 </dialog>
@@ -280,6 +292,8 @@ const COLUNAS = [
   ['local','Local'],['origem','Origem'],['status_acomp','Acompanhamento'],['responsavel','Responsável'],
   ['ultimo_contato','Último contato'],['retorno_contato','Último retorno'],['data_inclusao','Inclusão']
 ];
+const COLS_CELULAR = ['nome','regiao','local'];
+const celular = matchMedia('(max-width:640px)');
 const CAMPOS = ['nome','telefone','instagram','telefone_conferir','email','idade','regiao','local','estuda_trabalha','origem','situacao','data_cadastro','comentario_inscricao','observacoes'];
 
 let contatos = [], acomps = [], usuario = null, meuEmail = '', meuNome = '', ehAdmin = false;
@@ -408,11 +422,11 @@ function desenhar(){
   $('#stats').innerHTML = Object.entries(RAPIDOS).filter(([k,v])=>!v.so||v.so()).map(([k,v])=>
     `<button class="stat ${filtroRapido===k||(!filtroRapido&&k==='todos')?'on':''}" data-k="${k}"><b>${contatos.filter(v.f).length}</b><small>${v.cor?`<span class="dot" style="background:var(${v.cor})"></span>`:''}${v.rot}</small></button>`).join('');
   $('#stats').querySelectorAll('.stat').forEach(b=>b.onclick=()=>{ filtroRapido = b.dataset.k==='todos'||filtroRapido===b.dataset.k ? '' : b.dataset.k; desenhar(); });
-  $('#cabecalho').innerHTML = COLUNAS.map(([k,r])=>`<th data-k="${k}" class="${ordem.col===k?'sorted'+(ordem.asc?' asc':''):''}">${r}</th>`).join('');
+  $('#cabecalho').innerHTML = COLUNAS.map(([k,r])=>`<th data-k="${k}" class="${COLS_CELULAR.includes(k)?'m ':''}${ordem.col===k?'sorted'+(ordem.asc?' asc':''):''}">${k==='local'&&celular.matches?'Cidade':r}</th>`).join('');
   $('#cabecalho').querySelectorAll('th').forEach(th=>th.onclick=()=>{ const k=th.dataset.k; ordem = {col:k, asc: ordem.col===k ? !ordem.asc : !['ultimo_contato','data_inclusao'].includes(k)}; desenhar(); });
   const lista = filtrados();
   $('#contagem').textContent = `${lista.length} de ${contatos.length} contatos`;
-  if (!lista.length){ $('#corpo').innerHTML = `<tr><td colspan="${COLUNAS.length}" class="empty">Nenhum contato encontrado.</td></tr>`; return; }
+  if (!lista.length){ $('#corpo').innerHTML = `<tr><td colspan="${COLUNAS.length}" class="empty m">Nenhum contato encontrado.</td></tr>`; return; }
   $('#corpo').innerHTML = lista.map(c=>{
     const dig=(c.telefone||'').replace(/\D/g,'');
     const tel = c.telefone ? (c.telefone_conferir ? `${esc(c.telefone)} <span class="tag warn">conferir</span>` :
@@ -421,9 +435,9 @@ function desenhar(){
       `<a class="tel" href="https://instagram.com/${esc(c.instagram.slice(1))}" target="_blank" rel="noopener" data-stop>${esc(c.instagram)}</a>` : esc(c.instagram);
     const ret = c.retorno_contato || '';
     return `<tr data-id="${c.id}">
-      <td class="nome">${esc(c.nome)}</td><td>${esc(c.regiao)}</td><td>${tel}</td><td>${insta}</td>
+      <td class="nome m">${esc(c.nome)}</td><td class="m">${esc(c.regiao)}</td><td>${tel}</td><td>${insta}</td>
       <td>${c.idade??''}${c.idade!=null&&c.idade<18?' <span class="tag warn">menor</span>':''}</td>
-      <td>${esc(c.local)}</td><td>${esc(c.origem)}</td>
+      <td class="m">${esc(c.local)}</td><td>${esc(c.origem)}</td>
       <td><button class="${stClasse(c.status_acomp)}" data-acomp title="Abrir acompanhamento">${esc(c.status_acomp)}</button></td>
       <td>${esc(c.responsavel)}</td><td>${fmtData(c.ultimo_contato)}</td>
       <td class="ret">${esc(ret.slice(0,70))}${ret.length>70?'…':''}</td><td>${fmtData(c.data_inclusao)}</td></tr>`;
@@ -431,11 +445,12 @@ function desenhar(){
   $('#corpo').querySelectorAll('[data-stop]').forEach(a=>a.onclick=e=>e.stopPropagation());
   $('#corpo').querySelectorAll('tr[data-id]').forEach(tr=>{
     const c = () => contatos.find(x=>x.id==tr.dataset.id);
-    tr.onclick = ()=>abrir(c(), 'dados');
+    tr.onclick = ()=>abrir(c(), 'dados', celular.matches);
     tr.querySelector('[data-acomp]').onclick = e=>{ e.stopPropagation(); abrir(c(), 'acomp'); };
   });
 }
 ['#busca','#fRegiao','#fOrigem','#fSituacao','#fResp'].forEach(s=>$(s).addEventListener('input',desenhar));
+celular.addEventListener('change', ()=>{ if (contatos.length) desenhar(); });
 
 // ---------- FICHA ----------
 const dlg = $('#dlg'), form = $('#formContato');
@@ -445,10 +460,26 @@ function aba(nome){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on', t.dataset.tab===nome));
   document.querySelectorAll('[data-painel]').forEach(p=>p.classList.toggle('hidden', p.dataset.painel!==nome));
 }
-function abrir(c, qualAba='dados'){
+// Consulta: campos só para leitura, com o botão Alterar para liberar a edição.
+function modoConsulta(on){
+  dlg.classList.toggle('consulta', on);
+  form.querySelectorAll('input,select,textarea').forEach(el=>el.disabled=on);
+  $('#a_responsavel').disabled = $('#a_status').disabled = on;
+  $('#btnSalvar').classList.toggle('hidden', on);
+  $('#btnAlterar').classList.toggle('hidden', !on);
+  $('#btnExcluir').classList.toggle('hidden', on || !editando);
+}
+$('#btnAlterar').onclick = ()=>modoConsulta(false);
+function abrir(c, qualAba='dados', consulta=false){
   editando = c || null; form.reset(); limparReg();
   $('#dlgTitulo').textContent = c ? c.nome : 'Novo contato';
-  $('#btnExcluir').classList.toggle('hidden', !c);
+  modoConsulta(!!c && consulta);
+  const dig = (c?.telefone||'').replace(/\D/g,'');
+  $('#c_links').innerHTML = [
+    dig && !c.telefone_conferir ? `<a class="btn small" href="https://wa.me/55${dig}" target="_blank" rel="noopener">WhatsApp</a>` : '',
+    c?.instagram && /^@[\w.]+$/.test(c.instagram) ? `<a class="btn small" href="https://instagram.com/${esc(c.instagram.slice(1))}" target="_blank" rel="noopener">Instagram</a>` : ''
+  ].join('');
+  $('#c_links').classList.toggle('hidden', !$('#c_links').innerHTML);
   $('#tabAcomp').disabled = false;
   CAMPOS.forEach(k=>{ const el=form.elements[k]; if(!el) return; if(el.type==='checkbox') el.checked=!!(c&&c[k]); else el.value = c && c[k]!=null ? c[k] : ''; });
   $('#a_responsavel').value = c?.responsavel || '';
@@ -457,7 +488,7 @@ function abrir(c, qualAba='dados'){
     (c.atualizado_em ? ` · Alterado em ${new Date(c.atualizado_em).toLocaleString('pt-BR')}${c.atualizado_por?' por '+c.atualizado_por:''}` : '') : 'A data de inclusão é registrada automaticamente.';
   desenharHistorico();
   aba(qualAba); dlg.showModal();
-  setTimeout(()=> (qualAba==='acomp' ? $('#r_retorno') : form.elements.nome).focus(), 50);
+  if (!dlg.classList.contains('consulta')) setTimeout(()=> (qualAba==='acomp' ? $('#r_retorno') : form.elements.nome).focus(), 50);
 }
 $('#btnNovo').onclick = ()=>abrir(null);
 
