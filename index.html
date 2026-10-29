@@ -120,6 +120,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .users form{display:flex;gap:8px;padding:14px 18px;flex-wrap:wrap}
 .users form input{flex:1 1 200px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
 .users .dica{padding:0 18px 14px;color:var(--muted);font-size:13px;margin:0}
+.imp{padding:10px 18px;overflow:auto;display:flex;flex-direction:column;gap:10px}
+.imp textarea{width:100%;min-height:160px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font:13px/1.5 ui-monospace,Consolas,monospace;resize:vertical}
+.imp .dica{color:var(--muted);font-size:13px;margin:0}
+.imp ul{list-style:none;margin:0;padding:0}
+.imp li{display:flex;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px}
+.imp li span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+.imp .tag.ok{background:var(--s-ok);color:var(--s-ok-ink);border-color:transparent}
 @media (max-width:640px){
   header{flex-wrap:wrap}
   header .who{max-width:60vw}
@@ -180,6 +187,7 @@ tbody td:not(.empty){color:var(--valor);font-weight:600}
     <select id="fSituacao"><option value="">Situação (Faça Parte)</option></select>
     <select id="fResp"><option value="">Qualquer responsável</option><option value="__sem">Sem responsável</option></select>
     <button class="btn" id="btnCsv" title="Baixar a lista filtrada">Baixar CSV</button>
+    <button class="btn hidden" id="btnImportar" title="Incluir vários contatos de uma vez">Importar</button>
     <button class="btn primary" id="btnNovo">+ Novo contato</button>
   </div>
   <div class="count" id="contagem"></div>
@@ -276,6 +284,23 @@ tbody td:not(.empty){color:var(--valor);font-weight:600}
   <p class="dica">O nome deve ser igual ao usado no campo “Responsável” (ex.: Ícaro). Assim o cartão “Meus contatos” funciona para a pessoa.</p>
 </dialog>
 
+<!-- IMPORTAR (admin) -->
+<dialog id="dlgImportar">
+  <div class="dhead"><h2>Importar contatos</h2><button class="x" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <div class="imp">
+    <p class="dica">Cole uma pessoa por linha, com os dados separados por ponto e vírgula, nesta ordem:<br><b>nome; região; cidade; WhatsApp</b></p>
+    <textarea id="impTexto" placeholder="Maria da Silva; Metropolitana; Porto Alegre; (51) 99999-9999&#10;João Souza; Serra; Caxias do Sul; 54988887777"></textarea>
+    <p class="dica" id="impResumo"></p>
+    <ul id="impLista"></ul>
+  </div>
+  <div class="dfoot">
+    <div class="spacer"></div>
+    <button class="btn" type="button" data-fechar>Fechar</button>
+    <button class="btn" type="button" id="btnImpConferir">Conferir</button>
+    <button class="btn primary hidden" type="button" id="btnImpOk">Importar</button>
+  </div>
+</dialog>
+
 <datalist id="lRegiao"></datalist><datalist id="lOrigem"></datalist><datalist id="lResp"></datalist><datalist id="lCarac"></datalist>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -338,6 +363,7 @@ async function iniciar(session){
   ehAdmin = !!data.admin; meuNome = data.nome || '';
   $('#quem').textContent = meuNome ? `${meuNome} · ${meuEmail}` : meuEmail;
   $('#btnUsuarios').classList.toggle('hidden', !ehAdmin);
+  $('#btnImportar').classList.toggle('hidden', !ehAdmin);
   mostrar('telaApp');
   await carregar();
 }
@@ -639,6 +665,54 @@ $('#btnCsv').onclick = ()=>{
   const blob = new Blob(['﻿'+linhas.join('\r\n')], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `contatos-rebeldia-${hojeISO()}.csv`; a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+};
+
+// ---------- IMPORTAR (admin) ----------
+// Cada linha: nome; região; cidade; WhatsApp. É duplicada se o nome (sem acentos) ou o telefone
+// já existir no sistema ou em uma linha anterior da própria lista.
+let impNovos = [];
+const digitos = s => (s||'').replace(/\D/g,'').replace(/^55(?=\d{10,11}$)/,'');
+function conferirImportacao(){
+  const nomes = new Map(contatos.map(c=>[norm(c.nome), c.nome]));
+  const fones = new Map(contatos.filter(c=>digitos(c.telefone)).map(c=>[digitos(c.telefone), c.nome]));
+  const itens = [];
+  impNovos = [];
+  $('#impTexto').value.split(/\r?\n/).forEach((linha, i)=>{
+    if (!linha.trim()) return;
+    const [nome='', regiao='', cidade='', zap=''] = linha.split(';').map(s=>s.replace(/\s+/g,' ').trim());
+    if (i===0 && norm(nome)==='nome') return; // linha de títulos
+    if (!nome){ itens.push({linha, tag:'warn', rot:'sem nome — ignorada'}); return; }
+    const dig = digitos(zap);
+    const igual = nomes.get(norm(nome)) ?? (dig && fones.get(dig));
+    if (igual){ itens.push({linha, tag:'warn', rot:`já existe: ${igual}`}); return; }
+    const tel = formatarTelefone(zap);
+    const reg = { nome, regiao: REGIOES.find(r=>norm(r)===norm(regiao)) || regiao || null, local: cidade || null,
+                  telefone: tel.tel, telefone_conferir: !tel.ok };
+    impNovos.push(reg);
+    nomes.set(norm(nome), nome); if (dig) fones.set(dig, nome);
+    itens.push({linha, tag:'ok', rot: tel.ok ? 'nova' : 'nova · telefone a conferir'});
+  });
+  const dup = itens.length - impNovos.length;
+  $('#impResumo').textContent = itens.length ? `${impNovos.length} para incluir${dup?` · ${dup} não serão incluídas (duplicadas ou sem nome)`:''}.` : 'Nenhuma linha preenchida.';
+  $('#impLista').innerHTML = itens.map(t=>`<li><span>${esc(t.linha)}</span><span class="tag ${t.tag}">${esc(t.rot)}</span></li>`).join('');
+  $('#btnImpOk').textContent = `Importar ${impNovos.length} contato${impNovos.length===1?'':'s'}`;
+  $('#btnImpOk').classList.toggle('hidden', !impNovos.length);
+}
+$('#btnImportar').onclick = ()=>{
+  $('#impTexto').value=''; $('#impResumo').textContent=''; $('#impLista').innerHTML=''; impNovos=[];
+  $('#btnImpOk').classList.add('hidden'); $('#dlgImportar').showModal();
+};
+$('#btnImpConferir').onclick = conferirImportacao;
+$('#impTexto').addEventListener('input', ()=>$('#btnImpOk').classList.add('hidden'));
+$('#btnImpOk').onclick = async ()=>{
+  conferirImportacao(); // confere de novo contra a lista atual antes de gravar
+  if (!impNovos.length) return;
+  $('#btnImpOk').disabled = true;
+  const { data, error } = await sb.from('contatos').insert(impNovos).select();
+  $('#btnImpOk').disabled = false;
+  if (error){ toast('Erro ao importar: ' + error.message); return; }
+  contatos.push(...data); montarFiltros(); desenhar();
+  $('#dlgImportar').close(); toast(`${data.length} contato${data.length===1?'':'s'} importado${data.length===1?'':'s'}.`);
 };
 
 // ---------- USUÁRIOS (admin) ----------
