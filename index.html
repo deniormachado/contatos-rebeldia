@@ -80,7 +80,7 @@ a.tel{color:inherit;text-decoration:none;border-bottom:1px dotted var(--muted);w
 .msg{margin-top:12px;font-size:14px}
 .msg.err{color:var(--accent)} .msg.ok{color:var(--ok)}
 /* dialog */
-dialog{border:none;border-radius:14px;padding:0;width:min(780px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--panel);color:var(--ink);box-shadow:var(--shadow)}
+dialog{border:none;border-radius:14px;padding:0;width:min(780px,calc(100vw - 24px));max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);background:var(--panel);color:var(--ink);box-shadow:var(--shadow)}
 dialog[open]{display:flex;flex-direction:column}
 dialog::backdrop{background:rgba(0,0,0,.45)}
 .dhead{display:flex;align-items:center;gap:10px;padding:14px 18px 0;background:var(--panel)}
@@ -167,6 +167,15 @@ tbody td:not(.empty){color:var(--valor);font-weight:600}
 .btn.zap svg{width:20px;height:20px;fill:currentColor}
 #dlg.consulta .f input:disabled,#dlg.consulta .f select:disabled,#dlg.consulta .f textarea:disabled{opacity:1;color:var(--valor);-webkit-text-fill-color:var(--valor);font-weight:600;background:transparent;border-color:transparent;padding-left:0;padding-right:0;resize:none;appearance:none;-webkit-appearance:none}
 #dlg.consulta .f.check input:disabled{appearance:auto;-webkit-appearance:auto}
+/* consulta: sem texto de exemplo (parecia dado) e campo vazio marcado com "—" */
+#dlg.consulta .f input:disabled::placeholder,#dlg.consulta .f textarea:disabled::placeholder{color:transparent;-webkit-text-fill-color:transparent}
+#dlg .f{position:relative}
+#dlg.consulta .f:not(.links){cursor:pointer}
+#dlg.consulta .f.vazio::after{content:"—";position:absolute;left:0;bottom:9px;color:var(--muted);pointer-events:none}
+/* consulta: o toque passa pelo campo travado e chega na caixa do campo, que libera a edição */
+#dlg.consulta .f input:disabled,#dlg.consulta .f select:disabled,#dlg.consulta .f textarea:disabled{pointer-events:none}
+.aviso-consulta{display:none;grid-column:1/-1;font-size:13px;color:var(--muted);background:var(--bg);border:1px dashed var(--line);border-radius:8px;padding:8px 10px;margin:0}
+#dlg.consulta .aviso-consulta{display:block}
 </style>
 </head>
 <body>
@@ -233,6 +242,7 @@ tbody td:not(.empty){color:var(--valor);font-weight:600}
     <!-- ABA DADOS -->
     <form class="grid" id="formContato" autocomplete="off" data-painel="dados">
       <div class="f full links" id="c_links"></div>
+      <p class="aviso-consulta">Toque num campo ou em <b>Alterar</b> para editar.</p>
       <div class="f full"><label for="c_nome">Nome *</label><input id="c_nome" name="nome" required></div>
       <div class="f"><label for="c_telefone">Telefone</label><input id="c_telefone" name="telefone" inputmode="tel" placeholder="(51) 99999-9999"></div>
       <div class="f"><label for="c_instagram">Instagram</label><input id="c_instagram" name="instagram" placeholder="@usuario"></div>
@@ -402,8 +412,9 @@ async function iniciar(session){
 }
 let iniciado = false;
 sb.auth.onAuthStateChange((ev, session) => {
-  if (ev === 'SIGNED_OUT'){ mostrar('telaLogin'); return; }
-  if (ev === 'INITIAL_SESSION' || (ev === 'SIGNED_IN' && !iniciado)){ iniciado = !!session; iniciar(session); }
+  if (ev === 'SIGNED_OUT'){ iniciado = false; mostrar('telaLogin'); return; }
+  // O supabase-js pode avisar SIGNED_IN e INITIAL_SESSION na mesma abertura: inicia uma vez só.
+  if ((ev === 'INITIAL_SESSION' || ev === 'SIGNED_IN') && !iniciado){ iniciado = !!session; iniciar(session); }
 });
 
 // ---------- DADOS ----------
@@ -551,7 +562,21 @@ function modoConsulta(on){
   $('#btnAlterar').classList.toggle('hidden', !on);
   $('#btnExcluir').classList.toggle('hidden', on || !editando);
 }
-$('#btnAlterar').onclick = ()=>modoConsulta(false);
+$('#btnAlterar').onclick = ()=>{ modoConsulta(false); form.elements.nome.focus(); };
+// Consulta: tocar num campo libera a edição e já põe o cursor nele.
+dlg.querySelectorAll('.f').forEach(caixa=>caixa.addEventListener('click', ()=>{
+  if (!dlg.classList.contains('consulta') || caixa.classList.contains('links')) return;
+  const el = caixa.querySelector('input,select,textarea');
+  if (!el || !el.disabled) return;   // só campos travados pela consulta
+  modoConsulta(false);
+  el.focus();
+}));
+function marcarVazios(){
+  form.querySelectorAll('.f').forEach(caixa=>{
+    const el = caixa.querySelector('input,textarea');   // select vazio já mostra "—"
+    caixa.classList.toggle('vazio', !!el && el.type!=='checkbox' && !el.value);
+  });
+}
 function abrir(c, qualAba='dados', consulta=false){
   editando = c || null; form.reset(); limparReg();
   $('#dlgTitulo').textContent = c ? c.nome : 'Novo contato';
@@ -568,6 +593,7 @@ function abrir(c, qualAba='dados', consulta=false){
   CAMPOS.forEach(k=>{ const el=form.elements[k]; if(!el) return; if(el.type==='checkbox') el.checked=!!(c&&c[k]); else el.value = c && c[k]!=null ? c[k] : ''; });
   $('#a_responsavel').value = c?.responsavel || '';
   $('#a_status').value = c?.status_acomp || 'A contatar';
+  marcarVazios();
   $('#dlgMeta').textContent = c ? `Incluído em ${fmtData(c.data_inclusao)}${c.criado_por?' por '+c.criado_por:''}` +
     (c.atualizado_em ? ` · Alterado em ${new Date(c.atualizado_em).toLocaleString('pt-BR')}${c.atualizado_por?' por '+c.atualizado_por:''}` : '') : 'A data de inclusão é registrada automaticamente.';
   desenharHistorico();
