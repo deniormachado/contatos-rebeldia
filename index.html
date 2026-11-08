@@ -174,6 +174,9 @@ td .zapico svg{width:14px;height:14px}
 #c_links .zapico{width:34px;height:34px}
 #c_links .zapico svg{width:20px;height:20px}
 td.telcel{white-space:nowrap}
+/* ícone do Instagram: mesmo tamanho do ícone do WhatsApp, com as cores do Instagram */
+.zapico.instaico{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285aeb 90%)}
+#c_links{align-items:center}
 #dlg.consulta .f input:disabled,#dlg.consulta .f select:disabled,#dlg.consulta .f textarea:disabled{opacity:1;color:var(--valor);-webkit-text-fill-color:var(--valor);font-weight:600;background:transparent;border-color:transparent;padding-left:0;padding-right:0;resize:none;appearance:none;-webkit-appearance:none}
 #dlg.consulta .f.check input:disabled{appearance:auto;-webkit-appearance:auto}
 /* consulta: sem texto de exemplo (parecia dado) e campo vazio marcado com "—" */
@@ -522,13 +525,13 @@ function desenhar(){
     const tel = c.telefone ? (c.telefone_conferir ? `${esc(c.telefone)} <span class="tag warn">conferir</span>` :
       `${esc(c.telefone)}${iconeZap(dig)}`) : '';
     const insta = c.instagram && /^@[\w.]+$/.test(c.instagram) ?
-      `<a class="tel" href="https://instagram.com/${esc(c.instagram.slice(1))}" target="_blank" rel="noopener" data-stop>${esc(c.instagram)}</a>` : esc(c.instagram);
+      `${esc(c.instagram)}${iconeInsta(c.instagram)}` : esc(c.instagram);
     const ret = c.retorno_contato || '';
     const cel = {
       nome: `<td class="nome m">${esc(c.nome)}</td>`,
       regiao: `<td class="m">${esc(c.regiao)}</td>`,
       telefone: `<td class="telcel">${tel}</td>`,
-      instagram: `<td>${insta}</td>`,
+      instagram: `<td class="telcel">${insta}</td>`,
       idade: `<td>${c.idade??''}${c.idade!=null&&c.idade<18?' <span class="tag warn">menor</span>':''}</td>`,
       local: `<td class="m">${esc(c.local)}</td>`,
       origem: `<td>${esc(c.origem)}</td>`,
@@ -593,7 +596,7 @@ function abrir(c, qualAba='dados', consulta=false){
   const dig = (c?.telefone||'').replace(/\D/g,'');
   $('#c_links').innerHTML = [
     dig && !c.telefone_conferir ? iconeZap(dig) : '',
-    c?.instagram && /^@[\w.]+$/.test(c.instagram) ? `<a class="btn small" href="https://instagram.com/${esc(c.instagram.slice(1))}" target="_blank" rel="noopener">Instagram</a>` : ''
+    c?.instagram && /^@[\w.]+$/.test(c.instagram) ? iconeInsta(c.instagram) : ''
   ].join('');
   $('#c_links').classList.toggle('hidden', !$('#c_links').innerHTML);
   $('#linhaZap').classList.toggle('hidden', !(dig && !c.telefone_conferir));
@@ -614,6 +617,9 @@ $('#btnNovo').onclick = ()=>abrir(null);
 // Ícone do WhatsApp (mesmo desenho do botão Enviar). O toque usa abrirWhatsApp, como o Enviar.
 const ZAP_SVG = $('#btnZap svg').outerHTML;
 const iconeZap = dig => `<a class="zapico" href="https://wa.me/55${dig}" data-zap="${dig}" title="Enviar WhatsApp" aria-label="Enviar WhatsApp">${ZAP_SVG}</a>`;
+// Ícone do Instagram: abre o perfil (no celular, o app do Instagram quando instalado).
+const INSTA_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.4" cy="6.6" r="1.3" fill="currentColor"/></svg>';
+const iconeInsta = arroba => `<a class="zapico instaico" href="https://instagram.com/${esc(arroba.slice(1))}" target="_blank" rel="noopener" data-stop title="Abrir Instagram ${esc(arroba)}" aria-label="Abrir Instagram ${esc(arroba)}">${INSTA_SVG}</a>`;
 document.addEventListener('click', e=>{
   const a = e.target.closest('[data-zap]'); if (!a) return;
   e.preventDefault(); e.stopPropagation();   // não abre a ficha ao tocar no ícone da tabela
