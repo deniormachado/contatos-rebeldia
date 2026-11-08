@@ -165,6 +165,15 @@ tbody td:not(.empty){color:var(--valor);font-weight:600}
 #dlg.consulta .links{display:flex}
 .btn.zap{display:inline-flex;align-items:center;gap:8px;background:#25d366;border-color:#25d366;color:#fff;font-weight:600;align-self:flex-start}
 .btn.zap svg{width:20px;height:20px;fill:currentColor}
+/* ícone pequeno do WhatsApp (ficha no celular e ao lado do telefone na tabela) */
+.zapico{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#25d366;color:#fff;vertical-align:middle;flex:none;text-decoration:none;border:none;padding:0;cursor:pointer}
+.zapico svg{width:16px;height:16px;fill:currentColor}
+.zapico:hover{filter:brightness(.92)}
+td .zapico{width:22px;height:22px;margin-left:6px}
+td .zapico svg{width:14px;height:14px}
+#c_links .zapico{width:34px;height:34px}
+#c_links .zapico svg{width:20px;height:20px}
+td.telcel{white-space:nowrap}
 #dlg.consulta .f input:disabled,#dlg.consulta .f select:disabled,#dlg.consulta .f textarea:disabled{opacity:1;color:var(--valor);-webkit-text-fill-color:var(--valor);font-weight:600;background:transparent;border-color:transparent;padding-left:0;padding-right:0;resize:none;appearance:none;-webkit-appearance:none}
 #dlg.consulta .f.check input:disabled{appearance:auto;-webkit-appearance:auto}
 /* consulta: sem texto de exemplo (parecia dado) e campo vazio marcado com "—" */
@@ -511,14 +520,14 @@ function desenhar(){
   $('#corpo').innerHTML = lista.map(c=>{
     const dig=(c.telefone||'').replace(/\D/g,'');
     const tel = c.telefone ? (c.telefone_conferir ? `${esc(c.telefone)} <span class="tag warn">conferir</span>` :
-      `<a class="tel" href="https://wa.me/55${dig}" target="_blank" rel="noopener" data-stop>${esc(c.telefone)}</a>`) : '';
+      `${esc(c.telefone)}${iconeZap(dig)}`) : '';
     const insta = c.instagram && /^@[\w.]+$/.test(c.instagram) ?
       `<a class="tel" href="https://instagram.com/${esc(c.instagram.slice(1))}" target="_blank" rel="noopener" data-stop>${esc(c.instagram)}</a>` : esc(c.instagram);
     const ret = c.retorno_contato || '';
     const cel = {
       nome: `<td class="nome m">${esc(c.nome)}</td>`,
       regiao: `<td class="m">${esc(c.regiao)}</td>`,
-      telefone: `<td>${tel}</td>`,
+      telefone: `<td class="telcel">${tel}</td>`,
       instagram: `<td>${insta}</td>`,
       idade: `<td>${c.idade??''}${c.idade!=null&&c.idade<18?' <span class="tag warn">menor</span>':''}</td>`,
       local: `<td class="m">${esc(c.local)}</td>`,
@@ -583,7 +592,7 @@ function abrir(c, qualAba='dados', consulta=false){
   modoConsulta(!!c && consulta);
   const dig = (c?.telefone||'').replace(/\D/g,'');
   $('#c_links').innerHTML = [
-    dig && !c.telefone_conferir ? `<a class="btn small" href="https://wa.me/55${dig}" target="_blank" rel="noopener">WhatsApp</a>` : '',
+    dig && !c.telefone_conferir ? iconeZap(dig) : '',
     c?.instagram && /^@[\w.]+$/.test(c.instagram) ? `<a class="btn small" href="https://instagram.com/${esc(c.instagram.slice(1))}" target="_blank" rel="noopener">Instagram</a>` : ''
   ].join('');
   $('#c_links').classList.toggle('hidden', !$('#c_links').innerHTML);
@@ -601,6 +610,15 @@ function abrir(c, qualAba='dados', consulta=false){
   if (!dlg.classList.contains('consulta')) setTimeout(()=> (qualAba==='acomp' ? $('#r_retorno') : form.elements.nome).focus(), 50);
 }
 $('#btnNovo').onclick = ()=>abrir(null);
+
+// Ícone do WhatsApp (mesmo desenho do botão Enviar). O toque usa abrirWhatsApp, como o Enviar.
+const ZAP_SVG = $('#btnZap svg').outerHTML;
+const iconeZap = dig => `<a class="zapico" href="https://wa.me/55${dig}" data-zap="${dig}" title="Enviar WhatsApp" aria-label="Enviar WhatsApp">${ZAP_SVG}</a>`;
+document.addEventListener('click', e=>{
+  const a = e.target.closest('[data-zap]'); if (!a) return;
+  e.preventDefault(); e.stopPropagation();   // não abre a ficha ao tocar no ícone da tabela
+  abrirWhatsApp(a.dataset.zap);
+}, true);
 
 // Android (e demais): wa.me abre o app quando instalado.
 // Windows: tenta o app do WhatsApp; se a janela não perder o foco em 1,5 s, o app não abriu e vai para o WhatsApp Web.

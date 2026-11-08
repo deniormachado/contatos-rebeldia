@@ -100,7 +100,8 @@ Colunas: `id`, `email` (padrão: e-mail do JWT), `em` (timestamptz, padrão `now
     - busca sem distinção de acentos, que também procura no histórico de acompanhamento;
     - filtros por região, origem, situação (Faça Parte) e responsável;
     - tabela ordenável. Ao abrir, a ordem é região → cidade → nome, e essa sequência também desempata as outras ordenações. A coluna usada para ordenar vai sempre para a primeira posição, e o título dela fica em vermelho. No celular, a lista mostra Nome, Região e Cidade, mais a coluna ordenada. Lá, a caixa "Ordenar por" deixa escolher qualquer coluna. A tabela tem o selo de acompanhamento colorido; clicar no selo abre direto a aba Acompanhamento;
-    - telefone com link para o WhatsApp e Instagram com link para o perfil;
+    - telefone com o ícone do WhatsApp ao lado na tabela. O ícone abre a conversa, usando a mesma rotina do "Enviar", sem abrir a ficha. Instagram com link para o perfil;
+    - na ficha em modo consulta (celular), o atalho do WhatsApp no alto é um ícone pequeno;
     - ficha em `<dialog>` com duas abas:
       - **Dados**: cadastro, com inclusão, alteração e exclusão confirmada, formatação automática do telefone e aviso de duplicata;
       - **Acompanhamento**: responsável e situação atuais; formulário "Registrar contato" (data, quem fez, retorno, caracterização, observações); histórico do mais novo para o mais antigo, com Editar e Excluir para o autor ou o admin; anotações antigas da planilha aparecem como "Anotação trazida da planilha";
