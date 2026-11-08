@@ -36,7 +36,7 @@ Quem usa: militantes que fazem o contato com os inscritos. São usuários não t
 | comentario_inscricao | text | texto original do formulário de inscrição |
 | observacoes | text | |
 | email | text | minúsculo |
-| origem | text | Faça Parte (com variações do site), Rebeldia (impulsionamento), Apresentação Litoral-Serra |
+| origem | text | Faça Parte, Rebeldia (impulsionamento), Apresentação Litoral-Serra. Vindo do formulário, é sempre só "Faça Parte" (ver abaixo) |
 | situacao | text | check: Simpatizante / Filiado / Filiado e contribuinte |
 | data_cadastro | date | data vinda do formulário "Faça Parte" |
 | responsavel | text | quem faz o contato (ex.: Ícaro, Denior) |
@@ -45,6 +45,11 @@ Quem usa: militantes que fazem o contato com os inscritos. São usuários não t
 | data_inclusao | date | automática (dia em que entrou no sistema, fuso de São Paulo); não muda na edição |
 | status_acomp | text not null | check: A contatar / Em andamento / Sem resposta / Concluído (padrão A contatar) |
 | ultimo_contato | date | data do registro de acompanhamento mais recente (via trigger) |
+
+**Origem "Faça Parte" é um valor só.** Todo contato vindo do formulário Faça Parte tem `origem = 'Faça Parte'`, sem o sufixo do link (site-navmenu, site-bannerHome, site-footer, opiniao-footer etc.).
+- Em novas inclusões, grave só "Faça Parte" e descarte o rótulo do link que a lista do formulário traz.
+- O banco garante a regra: a trigger `contatos_unificar_origem` (função `privado.unificar_origem_faca_parte`, migração `origem_faca_parte_unificada`) transforma qualquer origem que comece com "Faça Parte" ou "Faca parte" em "Faça Parte", ao incluir ou alterar.
+- Em 08/11/2026, as 11 fichas que tinham variações foram unificadas a pedido do Denior. O total ficou em 33 com origem "Faça Parte".
 
 Observação: `responsavel`, `retorno_contato` e `caracterizacao` funcionam como **resumo**. Eles mostram o registro de acompanhamento mais recente e são atualizados pela trigger `contatos_resumir_acompanhamento`. O histórico completo fica em `acompanhamentos`.
 
