@@ -208,7 +208,7 @@ tbody td:not(.empty){color:var(--valor);font-weight:600}
     <select id="fSituacao"><option value="">Situação (Faça Parte)</option></select>
     <select id="fResp"><option value="">Qualquer responsável</option><option value="__sem">Sem responsável</option></select>
     <select id="fOrdem" class="so-celular" aria-label="Ordenar por"></select>
-    <button class="btn" id="btnCsv" title="Baixar a lista filtrada">Baixar CSV</button>
+    <button class="btn hidden" id="btnCsv" title="Baixar a lista filtrada">Baixar CSV</button>
     <button class="btn hidden" id="btnImportar" title="Incluir vários contatos de uma vez">Importar</button>
     <button class="btn primary" id="btnNovo">+ Novo contato</button>
   </div>
@@ -394,6 +394,7 @@ async function iniciar(session){
   $('#btnUsuarios').classList.toggle('hidden', !ehAdmin);
   $('#btnImportar').classList.toggle('hidden', !ehAdmin);
   $('#btnAcessos').classList.toggle('hidden', !ehAdmin);
+  $('#btnCsv').classList.toggle('hidden', !ehAdmin);
   mostrar('telaApp');
   // registra a entrada (o e-mail é preenchido pelo banco a partir do login)
   sb.from('acessos').insert({ dispositivo: celular.matches ? 'celular' : 'computador' }).then(({error})=>{ if (error) console.warn('acesso não registrado', error.message); });
@@ -707,6 +708,7 @@ $('#formReg').addEventListener('submit', async e=>{
 
 // ---------- CSV ----------
 $('#btnCsv').onclick = ()=>{
+  if (!ehAdmin) return;
   const cols = ['nome','regiao','telefone','telefone_conferir','instagram','idade','local','estuda_trabalha','email','origem','situacao','data_cadastro','status_acomp','responsavel','ultimo_contato','retorno_contato','caracterizacao','comentario_inscricao','observacoes','data_inclusao'];
   const titulos = ['Nome','Região','Telefone','Telefone a conferir','Instagram','Idade','Local','Estuda / Trabalha','E-mail','Origem','Situação (Faça Parte)','Data do cadastro','Acompanhamento','Responsável','Último contato','Último retorno','Caracterização','Comentário na inscrição','Observações','Data de inclusão'];
   const linhas = [titulos.join(';'), ...filtrados().map(c=>cols.map(k=>{ let v=c[k]; if(typeof v==='boolean') v=v?'sim':''; if((k.startsWith('data')||k==='ultimo_contato')&&v) v=fmtData(v); return '"'+String(v??'').replace(/"/g,'""')+'"'; }).join(';'))];
@@ -747,12 +749,14 @@ function conferirImportacao(){
   $('#btnImpOk').classList.toggle('hidden', !impNovos.length);
 }
 $('#btnImportar').onclick = ()=>{
+  if (!ehAdmin) return;
   $('#impTexto').value=''; $('#impResumo').textContent=''; $('#impLista').innerHTML=''; impNovos=[];
   $('#btnImpOk').classList.add('hidden'); $('#dlgImportar').showModal();
 };
 $('#btnImpConferir').onclick = conferirImportacao;
 $('#impTexto').addEventListener('input', ()=>$('#btnImpOk').classList.add('hidden'));
 $('#btnImpOk').onclick = async ()=>{
+  if (!ehAdmin) return;
   conferirImportacao(); // confere de novo contra a lista atual antes de gravar
   if (!impNovos.length) return;
   $('#btnImpOk').disabled = true;

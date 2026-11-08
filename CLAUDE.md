@@ -99,7 +99,8 @@ Colunas: `id`, `email` (padrão: e-mail do JWT), `em` (timestamptz, padrão `now
     - ficha em `<dialog>` com duas abas:
       - **Dados**: cadastro, com inclusão, alteração e exclusão confirmada, formatação automática do telefone e aviso de duplicata;
       - **Acompanhamento**: responsável e situação atuais; formulário "Registrar contato" (data, quem fez, retorno, caracterização, observações); histórico do mais novo para o mais antigo, com Editar e Excluir para o autor ou o admin; anotações antigas da planilha aparecem como "Anotação trazida da planilha";
-    - exportação de CSV (separador `;`, com BOM, para abrir no Excel);
+    - exportação de CSV (separador `;`, com BOM, para abrir no Excel), só para admin;
+    - "Importar" (colar lista nome; região; cidade; WhatsApp), só para admin;
     - painel "Usuários", só para admin, para dar e tirar acesso;
     - painel "Acessos", só para admin: último dia de acesso de cada pessoa e, ao tocar no nome, o histórico de entradas.
 - "Meus contatos" compara o campo `responsavel` com `usuarios_autorizados.nome` do usuário logado. Por isso o nome cadastrado deve ser igual ao usado em Responsável (ex.: "Ícaro").
