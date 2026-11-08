@@ -469,11 +469,15 @@ function filtrados(){
     }
     return true;
   }).sort((a,b)=>{
-    const x=a[ordem.col], y=b[ordem.col];
-    if (x==null && y==null) return a.nome.localeCompare(b.nome,'pt');
-    if (x==null) return 1; if (y==null) return -1;
-    const r = ordem.col==='status_acomp' ? STATUS.indexOf(x)-STATUS.indexOf(y) : typeof x==='number' ? x-y : String(x).localeCompare(String(y),'pt');
-    return (ordem.asc?r:-r) || a.nome.localeCompare(b.nome,'pt');
+    // coluna escolhida; empates (e o padrão ao abrir): região → cidade → nome, vazios por último
+    const cmp = (col, asc=true) => {
+      const x=a[col], y=b[col];
+      if (x==null && y==null) return 0;
+      if (x==null) return 1; if (y==null) return -1;
+      const r = col==='status_acomp' ? STATUS.indexOf(x)-STATUS.indexOf(y) : typeof x==='number' ? x-y : String(x).localeCompare(String(y),'pt',{sensitivity:'base'});
+      return asc ? r : -r;
+    };
+    return cmp(ordem.col, ordem.asc) || cmp('regiao') || cmp('local') || cmp('nome');
   });
 }
 
