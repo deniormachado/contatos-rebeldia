@@ -100,7 +100,7 @@ Colunas: `id`, `email` (padrão: e-mail do JWT), `em` (timestamptz, padrão `now
     - busca sem distinção de acentos, que também procura no histórico de acompanhamento;
     - filtros por região, origem, situação (Faça Parte) e responsável;
     - tabela ordenável. Ao abrir, a ordem é região → cidade → nome, e essa sequência também desempata as outras ordenações. A coluna usada para ordenar vai sempre para a primeira posição, e o título dela fica em vermelho. No celular, a lista mostra Nome, Região e Cidade, mais a coluna ordenada. Lá, a caixa "Ordenar por" deixa escolher qualquer coluna. A tabela tem o selo de acompanhamento colorido; clicar no selo abre direto a aba Acompanhamento;
-    - telefone com o ícone do WhatsApp ao lado na tabela. O ícone abre a conversa, usando a mesma rotina do "Enviar", sem abrir a ficha. O Instagram aparece do mesmo jeito: o @usuario em texto e, ao lado, o ícone que abre o perfil. O ícone só aparece no formato `@usuario`;
+    - telefone com o ícone do WhatsApp ao lado na tabela. O ícone abre a conversa (função `abrirWhatsApp`: app no celular; no Windows, tenta o app e, se não abrir, usa o WhatsApp Web) sem abrir a ficha. Os ícones são o único atalho para o WhatsApp: o botão "Enviar" da aba Acompanhamento foi removido em 08/11/2026. O Instagram aparece do mesmo jeito: o @usuario em texto e, ao lado, o ícone que abre o perfil. O ícone só aparece no formato `@usuario`;
     - na ficha em modo consulta (celular), os atalhos de WhatsApp e Instagram ficam no alto, como ícones pequenos lado a lado;
     - ficha em `<dialog>` com duas abas:
       - **Dados**: cadastro, com inclusão, alteração e exclusão confirmada, formatação automática do telefone e aviso de duplicata;
