@@ -94,7 +94,7 @@ Colunas: `id`, `email` (padrão: e-mail do JWT), `em` (timestamptz, padrão `now
     - cartões de resumo que também servem de filtro: Total, Meus contatos, A contatar, Em andamento, Sem resposta, Sem responsável, Telefone a conferir. O cartão selecionado fica com fundo vermelho. No celular, cada cartão ocupa uma linha só (número e nome lado a lado);
     - busca sem distinção de acentos, que também procura no histórico de acompanhamento;
     - filtros por região, origem, situação (Faça Parte) e responsável;
-    - tabela ordenável. Ao abrir, a ordem é região → cidade → nome, e essa sequência também desempata as outras ordenações. A coluna usada para ordenar vai sempre para a primeira posição, e o título dela fica em vermelho. A tabela tem o selo de acompanhamento colorido; clicar no selo abre direto a aba Acompanhamento;
+    - tabela ordenável. Ao abrir, a ordem é região → cidade → nome, e essa sequência também desempata as outras ordenações. A coluna usada para ordenar vai sempre para a primeira posição, e o título dela fica em vermelho. No celular, a lista mostra Nome, Região e Cidade, mais a coluna ordenada. Lá, a caixa "Ordenar por" deixa escolher qualquer coluna. A tabela tem o selo de acompanhamento colorido; clicar no selo abre direto a aba Acompanhamento;
     - telefone com link para o WhatsApp e Instagram com link para o perfil;
     - ficha em `<dialog>` com duas abas:
       - **Dados**: cadastro, com inclusão, alteração e exclusão confirmada, formatação automática do telefone e aviso de duplicata;

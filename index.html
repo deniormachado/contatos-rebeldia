@@ -51,6 +51,7 @@ main{max-width:1500px;margin:0 auto;padding:16px}
 .tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center}
 .tools input[type=search]{flex:1 1 220px;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
 .tools select{padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);max-width:100%}
+.so-celular{display:none}
 .count{color:var(--muted);font-size:13px;margin:4px 0 8px}
 .tablewrap{overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;max-height:calc(100vh - 300px);min-height:240px}
 table{border-collapse:collapse;width:100%;min-width:1150px}
@@ -152,7 +153,8 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   .stat{display:flex;align-items:baseline;gap:6px;padding:5px 10px;border-radius:99px;white-space:nowrap}
   .stat b{display:inline;font-size:15px}
   .stat small{font-size:13px}
-  /* celular: só Nome, Região e Cidade na lista */
+  .tools select.so-celular{display:block}
+  /* celular: só Nome, Região e Cidade na lista, mais a coluna ordenada */
   table{min-width:0}
   th:not(.m),td:not(.m){display:none}
 }
@@ -205,6 +207,7 @@ tbody td:not(.empty){color:var(--valor);font-weight:600}
     <select id="fOrigem"><option value="">Todas as origens</option></select>
     <select id="fSituacao"><option value="">Situação (Faça Parte)</option></select>
     <select id="fResp"><option value="">Qualquer responsável</option><option value="__sem">Sem responsável</option></select>
+    <select id="fOrdem" class="so-celular" aria-label="Ordenar por"></select>
     <button class="btn" id="btnCsv" title="Baixar a lista filtrada">Baixar CSV</button>
     <button class="btn hidden" id="btnImportar" title="Incluir vários contatos de uma vez">Importar</button>
     <button class="btn primary" id="btnNovo">+ Novo contato</button>
@@ -487,7 +490,8 @@ function desenhar(){
   $('#stats').querySelectorAll('.stat').forEach(b=>b.onclick=()=>{ filtroRapido = b.dataset.k==='todos'||filtroRapido===b.dataset.k ? '' : b.dataset.k; desenhar(); });
   // a coluna usada na ordenação vem sempre primeiro, à esquerda
   const cols = [...COLUNAS.filter(([k])=>k===ordem.col), ...COLUNAS.filter(([k])=>k!==ordem.col)];
-  $('#cabecalho').innerHTML = cols.map(([k,r])=>`<th data-k="${k}" class="${COLS_CELULAR.includes(k)?'m ':''}${ordem.col===k?'sorted'+(ordem.asc?' asc':''):''}">${k==='local'&&celular.matches?'Cidade':r}</th>`).join('');
+  $('#fOrdem').innerHTML = COLUNAS.map(([k,r])=>`<option value="${k}"${k===ordem.col?' selected':''}>Ordenar por: ${k==='local'?'Cidade':r}</option>`).join('');
+  $('#cabecalho').innerHTML = cols.map(([k,r])=>`<th data-k="${k}" class="${COLS_CELULAR.includes(k)||k===ordem.col?'m ':''}${ordem.col===k?'sorted'+(ordem.asc?' asc':''):''}">${k==='local'&&celular.matches?'Cidade':r}</th>`).join('');
   $('#cabecalho').querySelectorAll('th').forEach(th=>th.onclick=()=>{ const k=th.dataset.k; ordem = {col:k, asc: ordem.col===k ? !ordem.asc : !['ultimo_contato','data_inclusao'].includes(k)}; desenhar(); });
   const lista = filtrados();
   $('#contagem').textContent = `${lista.length} de ${contatos.length} contatos`;
@@ -513,6 +517,9 @@ function desenhar(){
       retorno_contato: `<td class="ret">${esc(ret.slice(0,70))}${ret.length>70?'…':''}</td>`,
       data_inclusao: `<td>${fmtData(c.data_inclusao)}</td>`,
     };
+    // a coluna ordenada também aparece no celular (classe "m")
+    const k0 = ordem.col;
+    if (!COLS_CELULAR.includes(k0)) cel[k0] = cel[k0].startsWith('<td class="') ? cel[k0].replace('<td class="','<td class="m ') : cel[k0].replace('<td','<td class="m"');
     return `<tr data-id="${c.id}">${cols.map(([k])=>cel[k]).join('')}</tr>`;
   }).join('');
   $('#corpo').querySelectorAll('[data-stop]').forEach(a=>a.onclick=e=>e.stopPropagation());
@@ -523,6 +530,7 @@ function desenhar(){
   });
 }
 ['#busca','#fRegiao','#fOrigem','#fSituacao','#fResp'].forEach(s=>$(s).addEventListener('input',desenhar));
+$('#fOrdem').addEventListener('change', e=>{ const k=e.target.value; ordem = {col:k, asc: !['ultimo_contato','data_inclusao'].includes(k)}; desenhar(); });
 celular.addEventListener('change', ()=>{ if (contatos.length) desenhar(); });
 
 // ---------- FICHA ----------
