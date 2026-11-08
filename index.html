@@ -12,7 +12,7 @@
   --row-hover:#faf6f0; --shadow:0 10px 30px rgba(0,0,0,.12);
   --s-novo:#eceae5; --s-novo-ink:#55534e; --s-and:#e3f0ff; --s-and-ink:#1a5aa8;
   --s-sem:#fff3e0; --s-sem-ink:#9a5400; --s-ok:#e6f4ea; --s-ok-ink:#1e6b33;
-  --valor:#c45a00;
+  --valor:#c45a00; --sorted-bg:#fdecea;
 }
 @media (prefers-color-scheme: dark){
   :root{ --bg:#151514; --panel:#1f1f1d; --ink:#ecebe7; --muted:#a3a19b; --line:#34332f;
@@ -20,7 +20,7 @@
     --row-hover:#272623; --shadow:0 10px 30px rgba(0,0,0,.5);
     --s-novo:#2c2b28; --s-novo-ink:#c8c6c0; --s-and:#16304f; --s-and-ink:#9cc8ff;
     --s-sem:#3a2a12; --s-sem-ink:#ffc27a; --s-ok:#173a22; --s-ok-ink:#93d6a5;
-    --valor:#ffa24d; }
+    --valor:#ffa24d; --sorted-bg:#3a1a1a; }
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -44,7 +44,9 @@ main{max-width:1500px;margin:0 auto;padding:16px}
 .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer;text-align:left}
 .stat b{display:block;font-size:21px;line-height:1.1}
 .stat small{color:var(--muted)}
-.stat.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.stat.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.stat.on small{color:var(--accent-ink);font-weight:600}
+.stat.on .dot{box-shadow:0 0 0 2px var(--accent-ink)}
 .stat .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
 .tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:center}
 .tools input[type=search]{flex:1 1 220px;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
@@ -54,6 +56,7 @@ main{max-width:1500px;margin:0 auto;padding:16px}
 table{border-collapse:collapse;width:100%;min-width:1150px}
 th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:14px}
 th{position:sticky;top:0;background:var(--panel);font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);cursor:pointer;user-select:none;white-space:nowrap;z-index:1}
+th.sorted{color:var(--accent);background:var(--sorted-bg);font-weight:800}
 th.sorted::after{content:" ▾"} th.sorted.asc::after{content:" ▴"}
 tbody tr{cursor:pointer} tbody tr:hover{background:var(--row-hover)}
 td.nome{font-weight:600;min-width:180px}
@@ -120,6 +123,17 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .users form{display:flex;gap:8px;padding:14px 18px;flex-wrap:wrap}
 .users form input{flex:1 1 200px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
 .users .dica{padding:0 18px 14px;color:var(--muted);font-size:13px;margin:0}
+.acessos .dica{padding:0 18px 8px;color:var(--muted);font-size:13px;margin:0}
+.acessos ul{list-style:none;margin:0;padding:0 18px 16px}
+.acessos li{border-bottom:1px solid var(--line)}
+.acessos summary{display:flex;gap:8px;align-items:baseline;padding:9px 0;cursor:pointer;list-style:none}
+.acessos summary::-webkit-details-marker{display:none}
+.acessos summary .q{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acessos summary .q small{color:var(--muted)}
+.acessos summary .d{white-space:nowrap;font-size:13px;color:var(--valor);font-weight:600}
+.acessos summary .d.nunca{color:var(--muted);font-weight:400}
+.acessos ol{margin:0 0 10px;padding:0 0 0 18px;font-size:13px;color:var(--muted)}
+.acessos ol li{border:none;padding:2px 0}
 .imp{padding:10px 18px;overflow:auto;display:flex;flex-direction:column;gap:10px}
 .imp textarea{width:100%;min-height:160px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font:13px/1.5 ui-monospace,Consolas,monospace;resize:vertical}
 .imp .dica{color:var(--muted);font-size:13px;margin:0}
@@ -133,7 +147,11 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   .grid,.novo-reg{grid-template-columns:1fr}
   main{padding:12px}
   .tablewrap{max-height:none}
-  .stat b{font-size:18px}
+  /* celular: cartões compactos, uma linha cada (número + nome lado a lado) */
+  .stats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .stat{display:flex;align-items:baseline;gap:6px;padding:5px 10px;border-radius:99px;white-space:nowrap}
+  .stat b{display:inline;font-size:15px}
+  .stat small{font-size:13px}
   /* celular: só Nome, Região e Cidade na lista */
   table{min-width:0}
   th:not(.m),td:not(.m){display:none}
@@ -176,6 +194,7 @@ tbody td:not(.empty){color:var(--valor);font-weight:600}
   <div class="spacer"></div>
   <span class="who" id="quem"></span>
   <button class="btn small hidden" id="btnUsuarios">Usuários</button>
+  <button class="btn small hidden" id="btnAcessos" title="Quando cada pessoa entrou no sistema">Acessos</button>
   <button class="btn small" id="btnSair">Sair</button>
 </header>
 <main>
@@ -284,6 +303,13 @@ tbody td:not(.empty){color:var(--valor);font-weight:600}
   <p class="dica">O nome deve ser igual ao usado no campo “Responsável” (ex.: Ícaro). Assim o cartão “Meus contatos” funciona para a pessoa.</p>
 </dialog>
 
+<!-- ACESSOS (admin) -->
+<dialog id="dlgAcessos" class="acessos">
+  <div class="dhead" style="padding-bottom:6px"><h2>Acessos ao sistema</h2><button class="x" type="button" data-fechar aria-label="Fechar">×</button></div>
+  <p class="dica">Último dia de acesso de cada pessoa. Toque numa pessoa para ver o histórico de entradas.</p>
+  <div class="dbody"><ul id="listaAcessos"></ul></div>
+</dialog>
+
 <!-- IMPORTAR (admin) -->
 <dialog id="dlgImportar">
   <div class="dhead"><h2>Importar contatos</h2><button class="x" type="button" data-fechar aria-label="Fechar">×</button></div>
@@ -364,7 +390,10 @@ async function iniciar(session){
   $('#quem').textContent = meuNome ? `${meuNome} · ${meuEmail}` : meuEmail;
   $('#btnUsuarios').classList.toggle('hidden', !ehAdmin);
   $('#btnImportar').classList.toggle('hidden', !ehAdmin);
+  $('#btnAcessos').classList.toggle('hidden', !ehAdmin);
   mostrar('telaApp');
+  // registra a entrada (o e-mail é preenchido pelo banco a partir do login)
+  sb.from('acessos').insert({ dispositivo: celular.matches ? 'celular' : 'computador' }).then(({error})=>{ if (error) console.warn('acesso não registrado', error.message); });
   await carregar();
 }
 let iniciado = false;
@@ -419,11 +448,8 @@ const RAPIDOS = {
   ac:       {rot:'A contatar',    f:c=>c.status_acomp==='A contatar', cor:'--s-novo-ink'},
   and:      {rot:'Em andamento',  f:c=>c.status_acomp==='Em andamento', cor:'--s-and-ink'},
   semr:     {rot:'Sem resposta',  f:c=>c.status_acomp==='Sem resposta', cor:'--s-sem-ink'},
-  conc:     {rot:'Concluído',     f:c=>c.status_acomp==='Concluído', cor:'--s-ok-ink'},
   semresp:  {rot:'Sem responsável', f:c=>!c.responsavel},
-  parados:  {rot:'Parados (+7 dias sem registro)', f:c=>c.status_acomp==='Em andamento' && (!c.ultimo_contato || diasDesde(c.ultimo_contato)>7)},
   conferir: {rot:'Telefone a conferir', f:c=>c.telefone_conferir},
-  menores:  {rot:'Menores de 18', f:c=>c.idade!=null && c.idade<18},
 };
 function diasDesde(d){ return Math.floor((new Date(hojeISO()) - new Date(d))/86400000); }
 
@@ -728,6 +754,35 @@ async function carregarUsuarios(){
   });
 }
 $('#btnUsuarios').onclick = ()=>{ carregarUsuarios(); $('#dlgUsuarios').showModal(); };
+// ---------- ACESSOS (admin) ----------
+const fmtHora = t => new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(t));
+const diaSP = t => new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo'}).format(new Date(t));
+function quandoFoi(t){
+  const n = diasDesde(diaSP(t));
+  return n<=0 ? 'hoje' : n===1 ? 'ontem' : `há ${n} dias`;
+}
+async function carregarAcessos(){
+  $('#listaAcessos').innerHTML = '<li class="empty">Carregando…</li>';
+  const [u, a] = await Promise.all([
+    sb.from('usuarios_autorizados').select('email,nome').order('email'),
+    sb.from('acessos').select('email,em,dispositivo').order('em',{ascending:false}).limit(2000)
+  ]);
+  if (u.error || a.error){ toast((u.error||a.error).message); return; }
+  const porEmail = {};
+  a.data.forEach(x=>(porEmail[x.email] ||= []).push(x));
+  const pessoas = u.data.map(p=>({...p, lista: porEmail[p.email]||[]}))
+    .sort((x,y)=> (y.lista[0]?.em||'').localeCompare(x.lista[0]?.em||'') || x.email.localeCompare(y.email));
+  $('#listaAcessos').innerHTML = pessoas.map(p=>{
+    const ult = p.lista[0];
+    const titulo = `<span class="q">${esc(p.nome||p.email)}${p.nome?` <small>${esc(p.email)}</small>`:''}</span>`;
+    const dia = ult ? `<span class="d">${fmtData(diaSP(ult.em))} · ${quandoFoi(ult.em)}</span>` : '<span class="d nunca">nunca entrou</span>';
+    if (!ult) return `<li><details><summary>${titulo}${dia}</summary></details></li>`;
+    const hist = p.lista.slice(0,50).map(x=>`<li>${fmtHora(x.em)}${x.dispositivo?' — '+esc(x.dispositivo):''}</li>`).join('');
+    return `<li><details><summary>${titulo}${dia}</summary><ol>${hist}</ol>${p.lista.length>50?`<p class="dica">Mostrando as 50 mais recentes de ${p.lista.length}.</p>`:''}</details></li>`;
+  }).join('') || '<li class="empty">Nenhuma pessoa cadastrada.</li>';
+}
+$('#btnAcessos').onclick = ()=>{ carregarAcessos(); $('#dlgAcessos').showModal(); };
+
 $('#formUsuario').addEventListener('submit', async e=>{
   e.preventDefault();
   const email=$('#novoEmail').value.trim().toLowerCase(), nome=$('#novoNome').value.trim()||null;

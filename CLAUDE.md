@@ -66,6 +66,12 @@ A trigger `acomp_resumo` roda depois de inserir, alterar ou excluir um registro 
 ### Tabela `public.usuarios_autorizados`
 Colunas: `email` (pk, minúsculo), `nome`, `admin` (boolean) e `criado_em`. Denior está cadastrado como admin.
 
+### Tabela `public.acessos` (histórico de entradas)
+Colunas: `id`, `email` (padrão: e-mail do JWT), `em` (timestamptz, padrão `now()`) e `dispositivo` (celular/computador).
+- O site grava uma linha cada vez que alguém autorizado abre o app.
+- Quem está autorizado só pode gravar com o próprio e-mail. Só o admin lê e exclui.
+- Migração `acessos_historico` (08/11/2026). Começou com o último login de cada usuário que o Supabase tinha, marcado como "login (registro anterior)".
+
 ### Segurança (RLS)
 - Em `contatos`, as quatro operações (ler, incluir, alterar, excluir) só são permitidas a quem está logado e passa em `privado.eh_autorizado()`, ou seja, cujo e-mail do JWT está em `usuarios_autorizados`.
 - Em `usuarios_autorizados`, cada usuário vê só o próprio registro. O admin (`privado.eh_admin()`) vê todos, inclui, altera e exclui, mas não pode excluir a si mesmo.
@@ -85,16 +91,17 @@ Colunas: `email` (pk, minúsculo), `nome`, `admin` (boolean) e `criado_em`. Deni
   - login;
   - "sem autorização";
   - app, com estas partes:
-    - cartões de resumo que também servem de filtro: Total, Meus contatos, A contatar, Em andamento, Sem resposta, Concluído, Sem responsável, Parados (+7 dias sem registro), Telefone a conferir, Menores de 18;
+    - cartões de resumo que também servem de filtro: Total, Meus contatos, A contatar, Em andamento, Sem resposta, Sem responsável, Telefone a conferir. O cartão selecionado fica com fundo vermelho. No celular, cada cartão ocupa uma linha só (número e nome lado a lado);
     - busca sem distinção de acentos, que também procura no histórico de acompanhamento;
     - filtros por região, origem, situação (Faça Parte) e responsável;
-    - tabela ordenável, com o selo de acompanhamento colorido; clicar no selo abre direto a aba Acompanhamento;
+    - tabela ordenável (o título da coluna usada na ordenação fica em vermelho), com o selo de acompanhamento colorido; clicar no selo abre direto a aba Acompanhamento;
     - telefone com link para o WhatsApp e Instagram com link para o perfil;
     - ficha em `<dialog>` com duas abas:
       - **Dados**: cadastro, com inclusão, alteração e exclusão confirmada, formatação automática do telefone e aviso de duplicata;
       - **Acompanhamento**: responsável e situação atuais; formulário "Registrar contato" (data, quem fez, retorno, caracterização, observações); histórico do mais novo para o mais antigo, com Editar e Excluir para o autor ou o admin; anotações antigas da planilha aparecem como "Anotação trazida da planilha";
     - exportação de CSV (separador `;`, com BOM, para abrir no Excel);
-    - painel "Usuários", só para admin, para dar e tirar acesso.
+    - painel "Usuários", só para admin, para dar e tirar acesso;
+    - painel "Acessos", só para admin: último dia de acesso de cada pessoa e, ao tocar no nome, o histórico de entradas.
 - "Meus contatos" compara o campo `responsavel` com `usuarios_autorizados.nome` do usuário logado. Por isso o nome cadastrado deve ser igual ao usado em Responsável (ex.: "Ícaro").
 - Endereço: `https://deniormachado.github.io/contatos-rebeldia/`
 
