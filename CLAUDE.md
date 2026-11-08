@@ -69,7 +69,7 @@ A trigger `acomp_resumo` roda depois de inserir, alterar ou excluir um registro 
 | atualizado_em / atualizado_por | timestamptz / text | preenchidos pela trigger `contatos_marcar_alteracao` |
 
 ### Tabela `public.usuarios_autorizados`
-Colunas: `email` (pk, minúsculo), `nome`, `admin` (boolean) e `criado_em`. Denior está cadastrado como admin.
+Colunas: `email` (pk, minúsculo), `nome`, `admin` (boolean) e `criado_em`. Denior é o único admin.
 
 ### Tabela `public.acessos` (histórico de entradas)
 Colunas: `id`, `email` (padrão: e-mail do JWT), `em` (timestamptz, padrão `now()`) e `dispositivo` (celular/computador).
@@ -141,6 +141,9 @@ Situação do acompanhamento em 08/11/2026:
 
 ## Pendências
 - [ ] Configurar SMTP próprio no Supabase (Gmail com senha de app ou Resend gratuito).
-- [ ] Incluir os e-mails dos outros usuários autorizados (ex.: Ícaro), com o nome igual ao usado em Responsável.
+- [x] Incluir os e-mails dos outros usuários autorizados, com o nome igual ao usado em Responsável. Concluído (conferido no banco em 08/11/2026):
+  - são 8 usuários: Denior (admin), Ícaro, Felipe, Alberto, Marcela, Marcelo, Keisi e Lucimar;
+  - os nomes usados em Responsável (Ícaro, Felipe e Denior) batem com os cadastrados;
+  - antes de citar esta lista, confira a tabela `usuarios_autorizados` no banco, que pode ter mudado.
 - [ ] Decidir se, nos contatos importados que têm `data_cadastro`, a `data_inclusao` deve receber essa data.
 - [ ] Opcional: modelo do e-mail de login em português.
