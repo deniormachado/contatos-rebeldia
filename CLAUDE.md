@@ -114,7 +114,24 @@ Colunas: `id`, `email` (padrão: e-mail do JWT), `em` (timestamptz, padrão `now
 - Na linha 18 (Andrey Assis), "Já tá militando" foi movido de Responsável para Caracterização.
 - A aba "Resumo" da planilha tinha #REF! e uma contagem errada de menores. O site calcula o resumo sozinho.
 - Os 70 contatos importados estão com `data_inclusao = 2026-10-28`.
+- No mesmo dia, às 21h54 (horário de São Paulo), entrou um segundo lote de 6 contatos, todos sem `criado_por` (ids 71–74, 76 e 77):
+  - Gabrielle, Noah Ferreira Guedes da Luz, Willian da Fonseca e Carolina Menezes, com origem Rebeldia (impulsionamento);
+  - João Vitor Rehbein Lucas e Mateus Correa Agliardi, com origem Faça Parte.
+- O contato de id 75 desse lote foi excluído depois. Por isso o id máximo é maior que o total de contatos.
 - Quando o acompanhamento foi criado, os 9 contatos que já tinham responsável ou caracterização receberam o status "Em andamento". Os outros 61 ficaram "A contatar".
+
+## Contagem por data de inclusão (levantamento de 08/11/2026)
+| data_inclusao | novos | acumulado | quem incluiu |
+|---|---|---|---|
+| 28/10/2026 | 76 | 76 | importação: 70 da planilha e um segundo lote de 6 |
+| 29/10/2026 | 4 | 80 | Denior e Ícaro, pelo site |
+| 02/11/2026 | 1 | 81 | Ícaro |
+| 03/11/2026 | 2 | 83 | fakauans@gmail.com |
+| 08/11/2026 | 7 | 90 | Claude, via SQL. Inscrições do Faça Parte e mensagens do WhatsApp. Fernanda Isele (id 81) e Guilherme (id 82) já existiam e foram só completados |
+
+Situação do acompanhamento em 08/11/2026:
+- A tabela `acompanhamentos` estava vazia: ninguém tinha usado "Registrar contato". Por isso `ultimo_contato` estava vazio em todas as fichas.
+- Os status foram mudados à mão nas fichas: 62 A contatar, 23 Em andamento, 4 Sem resposta e 1 Concluído.
 
 ## Pendências
 - [ ] Configurar SMTP próprio no Supabase (Gmail com senha de app ou Resend gratuito).
